@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Armenia 2026 · plan podróży</title>
+<link rel="apple-touch-icon" href="icons/icon-armenia.png">
+<link rel="icon" type="image/png" href="icons/icon-armenia.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Armenia">
+<meta name="theme-color" content="#5C1A2B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Inter:wght@400;500;600&family=Noto+Serif+Armenian:wght@600;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root{
+  --tuf:#C56A3E;        /* apricot tuff */
+  --tuf-deep:#9E4A28;
+  --burgundy:#5C1A2B;   /* pomegranate / cognac */
+  --basalt:#241F1D;     /* dark basalt */
+  --sand:#F3EBDD;       /* warm paper */
+  --sand-2:#E9DEC9;
+  --cream:#FBF6EC;
+  --sage:#6F7A56;       /* dilijan green */
+  --sage-deep:#4E5738;
+  --ink:#2A2320;
+  --muted:#8A7E70;
+  --line:#D9CBB2;
+  --gold:#C89B3C;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:var(--cream);
+  color:var(--ink);
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--tuf);color:#fff}
+
+/* ---------- header ---------- */
+header{
+  background:
+    radial-gradient(120% 140% at 85% -20%, rgba(197,106,62,.35), transparent 60%),
+    linear-gradient(160deg, var(--burgundy) 0%, var(--basalt) 100%);
+  color:var(--cream);
+  padding:34px 26px 0;
+  position:relative;
+  overflow:hidden;
+}
+header .arm{
+  position:absolute; right:-4vw; top:-3vw;
+  font-family:'Noto Serif Armenian',serif;
+  font-weight:900;
+  font-size:34vw;
+  line-height:.8;
+  color:rgba(255,255,255,.05);
+  pointer-events:none;
+  user-select:none;
+}
+.brand{position:relative;z-index:2;max-width:1080px;margin:0 auto;padding-bottom:28px}
+.brand-top{display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap}
+h1{
+  font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(40px,8vw,88px);line-height:.95;letter-spacing:.02em;
+  color:var(--cream);
+}
+.brand-dates{font-size:clamp(12px,1.4vw,15px);letter-spacing:.22em;text-transform:uppercase;color:var(--tuf);font-weight:600;white-space:nowrap}
+.brand-sub{margin-top:8px;font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:clamp(18px,2.6vw,30px);color:var(--sand-2);width:100%}
+.stats-line{margin-top:20px;font-size:13px;color:var(--sand-2);display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.stats-line b{font-family:'Fraunces',serif;font-weight:900;color:var(--cream);font-size:15px}
+.stats-line .dot{color:var(--tuf);opacity:.6}
+
+/* ---------- nav ---------- */
+nav{
+  position:sticky;top:0;z-index:50;
+  background:rgba(36,31,29,.97);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.nav-inner{max-width:1080px;margin:0 auto;display:flex;gap:6px;padding:10px 14px;overflow-x:auto}
+.nav-inner::-webkit-scrollbar{height:0}
+.tab{
+  appearance:none;border:0;cursor:pointer;
+  font-family:'Inter';font-size:13.5px;font-weight:600;
+  color:rgba(243,235,221,.62);background:transparent;
+  padding:9px 15px;border-radius:100px;white-space:nowrap;
+  display:flex;align-items:center;gap:7px;transition:all .2s;
+}
+.tab .ti{font-size:15px;line-height:1;opacity:.9}
+.tab:hover{color:var(--sand);background:rgba(255,255,255,.06)}
+.tab.active{color:#fff;background:var(--tuf)}
+.tab.active .ti{opacity:1}
+.nav-sep{flex:0 0 auto;width:1px;align-self:center;height:20px;background:rgba(255,255,255,.14);margin:0 4px}
+
+/* ---------- layout ---------- */
+main{max-width:1080px;margin:0 auto;padding:34px 20px 80px}
+.panel{display:none;animation:fade .4s ease}
+.panel.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.panel-head{margin-bottom:22px}
+.panel-head h2{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(26px,4vw,38px);letter-spacing:-.02em;color:var(--burgundy)}
+.panel-head p{color:var(--muted);margin-top:4px;font-size:15px}
+
+/* ---------- itinerary ---------- */
+.day{
+  background:var(--cream);border:1px solid var(--line);border-radius:16px;
+  margin-bottom:12px;overflow:hidden;transition:box-shadow .2s,border-color .2s;
+}
+.day:hover{box-shadow:0 6px 24px rgba(92,26,43,.08);border-color:var(--tuf)}
+.day.base{background:linear-gradient(90deg,rgba(111,122,86,.10),transparent 60%);border-left:4px solid var(--sage)}
+.day-top{display:flex;align-items:center;gap:16px;padding:16px 18px;cursor:pointer}
+.date-badge{
+  flex:0 0 auto;width:50px;height:54px;border-radius:11px;
+  background:var(--burgundy);color:var(--cream);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;
+}
+.day.base .date-badge{background:var(--sage-deep)}
+.date-badge.weekend{background:var(--tuf)}
+.day.base .date-badge.weekend{background:var(--tuf-deep)}
+.date-badge .wd{font-size:9px;letter-spacing:.12em;text-transform:uppercase;opacity:.8;margin-bottom:3px;font-weight:600}
+.date-badge .d{font-family:'Fraunces',serif;font-weight:900;font-size:18px}
+.date-badge .m{font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;margin-top:2px;opacity:.8}
+.day-head-txt{flex:1;min-width:0}
+.day-route{font-family:'Fraunces',serif;font-weight:600;font-size:17px;color:var(--ink)}
+.day-see{font-size:13.5px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip{flex:0 0 auto;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:20px;background:var(--sand-2);color:var(--tuf-deep)}
+.day.base .chip{background:rgba(111,122,86,.2);color:var(--sage-deep)}
+.expand{flex:0 0 auto;color:var(--muted);transition:transform .2s;font-size:20px}
+.day.open .expand{transform:rotate(180deg)}
+.day-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.day.open .day-body{max-height:600px}
+.day-body-inner{padding:2px 18px 20px 92px;border-top:1px solid var(--line);margin-top:-1px}
+.day-body-inner .row{display:flex;gap:10px;font-size:14px;margin-top:12px}
+.day-body-inner .k{flex:0 0 96px;font-weight:600;color:var(--tuf-deep);font-size:12px;letter-spacing:.04em;text-transform:uppercase;padding-top:2px}
+.day-body-inner .v{flex:1;color:var(--ink)}
+.day-body-inner .note{color:var(--muted);font-style:italic}
+/* read view */
+.dv-row{display:flex;gap:14px;margin-top:13px;font-size:14px;line-height:1.55}
+.dv-row:first-child{margin-top:4px}
+.dv-k{flex:0 0 92px;font-weight:600;color:var(--tuf-deep);font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;padding-top:2px}
+.dv-v{flex:1;color:var(--ink)}
+.dv-sub{color:var(--muted);font-size:13px}
+.dv-note{color:var(--muted);font-style:italic}
+.dv-food{margin-bottom:4px}
+.dv-food b{color:var(--ink)}
+.dv-actions{display:flex;gap:8px;align-items:center;margin-top:18px;padding-top:14px;border-top:1px dashed var(--line)}
+.day-edit-btn,.day-done-btn,.day-reset-btn{appearance:none;border:1px solid var(--line);background:#fff;color:var(--tuf-deep);border-radius:8px;padding:8px 14px;font-family:'Inter';font-size:13px;font-weight:600;cursor:pointer;transition:all .18s}
+.day-edit-btn:hover{background:var(--tuf);color:#fff;border-color:transparent}
+.day-done-btn{background:var(--sage);color:#fff;border-color:transparent}
+.day-done-btn:hover{background:var(--sage-deep)}
+.day-reset-btn{color:var(--muted)}
+.day-reset-btn:hover{background:#f0e0e0;color:#C0392B;border-color:transparent}
+.dv-actions .badge-btn{margin-left:auto}
+.dv-actions .badge-btn+.badge-btn{margin-left:0}
+@media(max-width:620px){.day-body-inner{padding-left:18px}}
+
+/* ---------- calendar ---------- */
+.cal-legend{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:18px;font-size:13px;color:var(--muted)}
+.cal-legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:8px}
+.cal-dow{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:center;font-weight:600;padding-bottom:4px}
+.cal-cell{min-height:96px;border:1px solid var(--line);border-radius:12px;background:var(--cream);padding:8px;display:flex;flex-direction:column;cursor:default;position:relative;transition:transform .15s}
+.cal-cell.empty{min-height:96px;border:0;background:none}
+.cal-cell.trip{cursor:pointer;border-color:var(--tuf)}
+.cal-cell.trip:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(92,26,43,.12)}
+.cal-cell.base{background:linear-gradient(160deg,rgba(111,122,86,.16),rgba(111,122,86,.04))}
+.cal-cell.travel{background:linear-gradient(160deg,rgba(197,106,62,.16),rgba(197,106,62,.04))}
+.cal-cell.flight{background:linear-gradient(160deg,rgba(92,26,43,.18),rgba(92,26,43,.05))}
+.cal-num{font-family:'Fraunces',serif;font-weight:600;font-size:16px}
+.cal-cell.trip .cal-num{color:var(--burgundy)}
+.cal-tag{margin-top:auto;font-size:10.5px;font-weight:600;line-height:1.2;color:var(--tuf-deep)}
+.cal-cell.base .cal-tag{color:var(--sage-deep)}
+.cal-cell.flight .cal-tag{color:var(--burgundy)}
+.cal-fly{position:absolute;top:6px;right:7px;font-size:12px}
+.month-label{display:block;clear:both;font-family:'Fraunces',serif;font-weight:900;font-size:20px;color:var(--tuf-deep);margin:44px 0 16px}
+.month-label:first-child{margin-top:8px}
+
+/* ---------- budget ---------- */
+.budget-card{background:var(--cream);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.brow{display:grid;grid-template-columns:1fr 84px 60px 92px;gap:8px;align-items:center;padding:13px 18px;border-bottom:1px solid var(--line);font-size:14px}
+.brow:last-child{border-bottom:0}
+.brow.h{background:var(--burgundy);color:var(--cream);font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.brow input{width:100%;border:1px solid var(--line);border-radius:8px;padding:7px 8px;font-family:'Inter';font-size:14px;text-align:right;background:#fff;color:var(--ink)}
+.brow input:focus{outline:2px solid var(--tuf);border-color:transparent}
+.brow .lbl{font-weight:500}
+.brow .sum{font-family:'Fraunces',serif;font-weight:600;text-align:right;color:var(--burgundy)}
+.btotal{display:flex;justify-content:space-between;align-items:center;padding:20px 18px;background:linear-gradient(90deg,var(--sand-2),transparent);border-radius:0 0 16px 16px}
+.btotal .t-lbl{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.btotal .t-val{font-family:'Fraunces',serif;font-weight:900;font-size:34px;color:var(--burgundy);line-height:1}
+.btotal .t-pln{font-size:14px;color:var(--muted);text-align:right;margin-top:4px}
+.rate-row{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-top:14px;font-size:13px;color:var(--muted)}
+.rate-row input{width:70px;border:1px solid var(--line);border-radius:8px;padding:5px 8px;text-align:right;font-family:'Inter'}
+.budget-note{font-size:12.5px;color:var(--muted);font-style:italic;margin-top:14px}
+@media(max-width:560px){.brow{grid-template-columns:1fr 66px 48px 74px;font-size:12.5px;padding:11px 12px}.brow input{padding:6px 5px;font-size:12.5px}}
+
+/* ---------- instagram ---------- */
+.ig-card{background:var(--cream);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:14px;position:relative;transition:border-color .2s}
+.ig-card:hover{border-color:var(--tuf)}
+.ig-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.ig-place{font-family:'Fraunces',serif;font-weight:600;font-size:18px;color:var(--burgundy)}
+.ig-type{font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;background:var(--tuf);color:#fff;padding:3px 9px;border-radius:20px}
+.ig-cap{font-size:15px;line-height:1.6;color:var(--ink)}
+.ig-tags{margin-top:12px;font-size:13px;color:var(--sage-deep);font-weight:500}
+.ig-copy{position:absolute;top:18px;right:18px;appearance:none;border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:8px;padding:6px 12px;font-family:'Inter';font-size:12px;font-weight:600;cursor:pointer;transition:all .18s}
+.ig-copy:hover{background:var(--burgundy);color:#fff;border-color:transparent}
+.ig-copy.done{background:var(--sage);color:#fff;border-color:transparent}
+.reel-toggle{margin-top:14px;appearance:none;border:0;background:none;cursor:pointer;font-family:'Inter';font-size:13px;font-weight:600;color:var(--tuf-deep);padding:0;display:inline-flex;align-items:center;gap:4px}
+.reel-toggle:hover{color:var(--burgundy)}
+.reel-box{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.reel-box.open{max-height:800px;margin-top:12px}
+.reel-list{list-style:none;counter-reset:shot;border-left:2px solid var(--tuf);padding-left:0;margin:0}
+.reel-list li{counter-increment:shot;position:relative;padding:8px 0 8px 40px;font-size:13.5px;line-height:1.5;color:var(--ink);border-bottom:1px dashed var(--line)}
+.reel-list li:last-child{border-bottom:0;color:var(--sage-deep);font-style:italic}
+.reel-list li::before{content:counter(shot);position:absolute;left:-11px;top:8px;width:20px;height:20px;background:var(--tuf);color:#fff;border-radius:50%;font-size:11px;font-weight:700;font-family:'Fraunces',serif;display:flex;align-items:center;justify-content:center}
+.reel-list li:last-child::before{content:"♪";background:var(--sage-deep)}
+.ig-copy-reel{margin-top:12px;appearance:none;border:1px solid var(--tuf);background:#fff;color:var(--tuf-deep);border-radius:8px;padding:8px 14px;font-family:'Inter';font-size:13px;font-weight:600;cursor:pointer;transition:all .18s}
+.ig-copy-reel:hover{background:var(--tuf);color:#fff}
+.ig-copy-reel.done{background:var(--sage);color:#fff;border-color:transparent}
+.vo-block{background:linear-gradient(160deg,rgba(92,26,43,.06),rgba(197,106,62,.04));border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:16px}
+.vo-label{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--burgundy);margin-bottom:8px}
+.vo-text{font-family:'Fraunces',serif;font-size:16px;line-height:1.6;color:var(--ink);font-style:italic}
+.ig-copy-vo{margin-top:12px;appearance:none;border:0;background:var(--burgundy);color:#fff;border-radius:8px;padding:8px 14px;font-family:'Inter';font-size:13px;font-weight:600;cursor:pointer;transition:all .18s}
+.ig-copy-vo:hover{background:var(--basalt)}
+.ig-copy-vo.done{background:var(--sage)}
+.reel-shots-label{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--tuf-deep);margin-bottom:10px}
+
+/* ---------- flights ---------- */
+.flight{display:flex;gap:16px;align-items:center;background:var(--cream);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:12px}
+.flight .fico{flex:0 0 auto;width:46px;height:46px;border-radius:12px;background:var(--burgundy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px}
+.flight .fmain{flex:1;min-width:0}
+.flight .froute{font-family:'Fraunces',serif;font-weight:600;font-size:17px}
+.flight .fmeta{font-size:13px;color:var(--muted);margin-top:2px}
+.flight .fnote{font-size:12.5px;color:var(--tuf-deep);margin-top:6px;font-weight:500}
+.flight .ftime{flex:0 0 auto;text-align:right}
+.flight .ftime b{font-family:'Fraunces',serif;font-size:20px;font-weight:900;color:var(--burgundy);display:block}
+.flight .ftime span{font-size:11px;color:var(--muted)}
+
+/* ---------- checklist ---------- */
+.chk{display:flex;gap:12px;align-items:flex-start;background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:9px;cursor:pointer;transition:all .15s}
+.chk:hover{border-color:var(--tuf)}
+.chk.done{opacity:.55;background:var(--sand)}
+.chk .box{flex:0 0 auto;width:22px;height:22px;border:2px solid var(--tuf);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;transition:all .15s}
+.chk.done .box{background:var(--sage);border-color:var(--sage)}
+.chk .task{flex:1;font-size:14.5px}
+.chk.done .task{text-decoration:line-through}
+.chk .when{flex:0 0 auto;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--tuf-deep);padding-top:2px}
+
+/* ---------- map ---------- */
+#map{height:520px;border-radius:16px;border:1px solid var(--line);z-index:1}
+.leaflet-popup-content-wrapper{border-radius:10px}
+.leaflet-popup-content{font-family:'Inter',sans-serif;font-size:13px}
+.map-pop b{font-family:'Fraunces',serif;color:var(--burgundy);font-size:15px}
+.map-pop .mp-date{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--tuf-deep);font-weight:600}
+.map-marker{background:var(--burgundy);color:#fff;width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.3);border:2px solid #fff}
+.map-marker.base{background:var(--sage-deep)}
+.map-marker.flight{background:var(--tuf)}
+.map-marker span{transform:rotate(45deg);font-size:11px;font-weight:700;font-family:'Fraunces',serif}
+@media(max-width:560px){#map{height:420px}}
+
+/* ---------- stays ---------- */
+.stay{background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:12px;transition:border-color .2s}
+.stay:hover{border-color:var(--tuf)}
+.stay.filled{border-left:4px solid var(--sage)}
+.stay-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.stay-loc{font-family:'Fraunces',serif;font-weight:600;font-size:17px;color:var(--burgundy);flex:1}
+.stay-nights{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--tuf-deep);background:var(--sand-2);padding:4px 10px;border-radius:20px}
+.stay-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stay-fields .full{grid-column:1/-1}
+.stay label{display:block;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px}
+.stay input{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 10px;font-family:'Inter';font-size:14px;background:#fff;color:var(--ink)}
+.stay input:focus{outline:2px solid var(--tuf);border-color:transparent}
+.stay .saved-tick{font-size:12px;color:var(--sage-deep);font-weight:600;opacity:0;transition:opacity .3s}
+.booked-v{font-size:14px;color:var(--ink);padding:7px 0;font-weight:500}
+.stay .saved-tick.show{opacity:1}
+.stay-link{display:inline-block;margin-top:8px;font-size:13px;color:var(--tuf-deep);font-weight:600;text-decoration:none}
+.stay-link:hover{text-decoration:underline}
+@media(max-width:560px){.stay-fields{grid-template-columns:1fr}}
+
+/* ---------- editable day / food / badges ---------- */
+.day-badges{display:inline-flex;gap:4px;margin-left:6px;vertical-align:middle}
+.badge-btn{appearance:none;border:1px solid var(--line);background:#fff;cursor:pointer;width:26px;height:26px;border-radius:7px;font-size:13px;line-height:1;transition:all .15s;opacity:.4}
+.badge-btn:hover{opacity:.8}
+.badge-btn.on{opacity:1;border-color:transparent}
+.badge-btn.star.on{background:var(--gold);color:#fff}
+.badge-btn.warn.on{background:#C0392B;color:#fff}
+.day.starred{border-left:4px solid var(--gold)}
+.day.warned{box-shadow:inset 3px 0 0 #C0392B}
+.edit-grid{margin-top:14px;border-top:1px dashed var(--line);padding-top:14px}
+.edit-grid label{display:block;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:10px 0 4px}
+.edit-grid input,.edit-grid textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 10px;font-family:'Inter';font-size:14px;background:#fff;color:var(--ink);resize:vertical}
+.edit-grid input:focus,.edit-grid textarea:focus{outline:2px solid var(--tuf);border-color:transparent}
+.edit-hint{font-size:11px;color:var(--muted);font-style:italic;margin-top:2px}
+.edit-saved{font-size:12px;color:var(--sage-deep);font-weight:600;opacity:0;transition:opacity .3s;margin-top:8px;display:inline-block}
+.edit-saved.show{opacity:1}
+.food-sec{margin-top:16px;border-top:1px dashed var(--line);padding-top:14px}
+.food-sec h4{font-family:'Fraunces',serif;font-size:15px;color:var(--burgundy);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.food-item{display:flex;gap:10px;align-items:flex-start;background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.food-item .fi-main{flex:1}
+.food-item .fi-name{font-weight:600;font-size:14px}
+.food-item .fi-meta{font-size:12.5px;color:var(--muted);margin-top:2px}
+.food-item .fi-del{appearance:none;border:0;background:none;color:var(--muted);cursor:pointer;font-size:16px;padding:2px 6px;border-radius:6px}
+.food-item .fi-del:hover{background:#f0e0e0;color:#C0392B}
+.food-add{display:grid;grid-template-columns:1.4fr 1fr;gap:8px;margin-top:4px}
+.food-add input{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-family:'Inter';font-size:13px}
+.food-add .full{grid-column:1/-1}
+.food-add-btn{appearance:none;border:1px solid var(--tuf);background:#fff;color:var(--tuf-deep);border-radius:8px;padding:8px 14px;font-family:'Inter';font-size:13px;font-weight:600;cursor:pointer;margin-top:8px}
+.food-add-btn:hover{background:var(--tuf);color:#fff}
+@media(max-width:560px){.food-add{grid-template-columns:1fr}}
+
+/* ---------- see-list ---------- */
+.see-filter{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.sub-nav{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:2px}
+.snb{appearance:none;border:0;background:none;color:var(--muted);padding:10px 14px;font-family:'Inter';font-size:14px;font-weight:600;cursor:pointer;border-radius:8px 8px 0 0;transition:all .15s;position:relative}
+.snb:hover{color:var(--ink)}
+.snb.active{color:var(--burgundy)}
+.snb.active::after{content:"";position:absolute;left:8px;right:8px;bottom:-3px;height:3px;background:var(--tuf);border-radius:3px 3px 0 0}
+.cult-cat{font-family:'Fraunces',serif;font-weight:900;font-size:17px;color:var(--tuf-deep);margin:22px 0 12px}
+.cult-cat:first-child{margin-top:0}
+.cult-item{background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:15px 17px;margin-bottom:10px;transition:border-color .2s}
+.cult-item:hover{border-color:var(--tuf)}
+.cult-head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:5px}
+.cult-title{font-family:'Fraunces',serif;font-weight:600;font-size:16px;color:var(--ink)}
+.cult-meta{font-size:12.5px;color:var(--tuf-deep);font-weight:600}
+.cult-desc{font-size:14px;line-height:1.55;color:var(--muted)}
+.cult-star{color:var(--gold)}
+/* language */
+.lang-sec{margin-bottom:24px}
+.lang-sec h3{font-family:'Fraunces',serif;font-weight:900;font-size:17px;color:var(--tuf-deep);margin-bottom:12px}
+.alpha-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+.alpha-cell{background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:10px 6px;text-align:center}
+.alpha-ch{font-family:'Noto Serif Armenian',serif;font-size:24px;color:var(--burgundy);line-height:1}
+.alpha-tr{font-size:11px;color:var(--muted);margin-top:5px}
+.phrase{display:flex;gap:12px;align-items:baseline;background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin-bottom:7px}
+.phrase .arm{font-family:'Noto Serif Armenian',serif;font-size:17px;color:var(--burgundy);flex:0 0 auto;min-width:110px}
+.phrase .lat{font-size:13px;color:var(--tuf-deep);font-style:italic;flex:0 0 auto;min-width:120px}
+.phrase .pl{font-size:14px;color:var(--ink);flex:1}
+@media(max-width:560px){.phrase{flex-wrap:wrap;gap:3px}.phrase .arm,.phrase .lat{min-width:0}}
+.sf{appearance:none;border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:100px;padding:7px 14px;font-family:'Inter';font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+.sf:hover{color:var(--ink)}
+.sf.active{background:var(--burgundy);color:#fff;border-color:transparent}
+.see-cat{font-family:'Fraunces',serif;font-weight:900;font-size:16px;color:var(--tuf-deep);margin:20px 0 10px}
+.see-cat:first-child{margin-top:0}
+.see-item{display:flex;gap:12px;align-items:flex-start;background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-bottom:8px;cursor:pointer;transition:all .15s}
+.see-item:hover{border-color:var(--tuf)}
+.see-item.done{opacity:.5;background:var(--sand)}
+.see-item .sbox{flex:0 0 auto;width:22px;height:22px;border:2px solid var(--sage);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;transition:all .15s;margin-top:1px}
+.see-item.done .sbox{background:var(--sage);border-color:var(--sage)}
+.see-item .sname{flex:1;font-size:14.5px}
+.see-item.done .sname{text-decoration:line-through}
+.see-item .sname .star{color:var(--gold);margin-left:4px}
+.see-item .sday{flex:0 0 auto;font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--tuf-deep);background:var(--sand-2);padding:3px 9px;border-radius:20px;margin-top:1px}
+
+/* ---------- footer ---------- */
+footer{text-align:center;padding:30px 20px 50px;color:var(--muted);font-size:12.5px}
+footer .arm-sig{font-family:'Noto Serif Armenian',serif;font-size:22px;color:var(--tuf);display:block;margin-bottom:6px}
+.data-bar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.data-btn{appearance:none;border:1px solid var(--line);background:#fff;color:var(--tuf-deep);border-radius:8px;padding:9px 16px;font-family:'Inter';font-size:13px;font-weight:600;cursor:pointer;transition:all .18s}
+.data-btn:hover{background:var(--tuf);color:#fff;border-color:transparent}
+.data-msg{margin-top:10px;font-size:12.5px;color:var(--sage-deep);font-weight:600;min-height:16px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="arm">Հ</div>
+  <div class="brand">
+    <div class="brand-top">
+      <h1>ARMENIA</h1>
+      <div class="brand-dates">17 wrz – 1 paź 2026</div>
+    </div>
+    <div class="brand-sub">od Gyumri po Tatev</div>
+    <div class="stats-line"><span><b>14</b> dni</span><span class="dot">·</span><span><b>5</b> etapów</span><span class="dot">·</span><span><b id="hero-budget">~€787</b> na miejscu</span></div>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-inner" id="tabs">
+    <button class="tab active" data-p="trasa"><span class="ti">◆</span>Trasa</button>
+    <button class="tab" data-p="kalendarz"><span class="ti">▦</span>Kalendarz</button>
+    <button class="tab" data-p="mapa"><span class="ti">◉</span>Mapa</button>
+    <span class="nav-sep"></span>
+    <button class="tab" data-p="noclegi"><span class="ti">⌂</span>Noclegi</button>
+    <button class="tab" data-p="budzet"><span class="ti">€</span>Budżet</button>
+    <button class="tab" data-p="loty"><span class="ti">✈</span>Loty</button>
+    <button class="tab" data-p="checklist"><span class="ti">✓</span>Lista</button>
+    <span class="nav-sep"></span>
+    <button class="tab" data-p="zobaczyc"><span class="ti">✦</span>Niezbędnik</button>
+    <button class="tab" data-p="instagram"><span class="ti">▷</span>Instagram</button>
+  </div>
+</nav>
+
+<main>
+  <!-- TRASA -->
+  <section class="panel active" id="trasa">
+    <div id="days"></div>
+  </section>
+
+  <!-- MAPA -->
+  <section class="panel" id="mapa">
+    <div id="map"></div>
+    <p class="budget-note" style="margin-top:14px">Mapa © OpenStreetMap. Współrzędne orientacyjne — do nawigacji użyj apki GG/Yandex na miejscu.</p>
+  </section>
+
+  <!-- KALENDARZ -->
+  <section class="panel" id="kalendarz">
+    <div class="cal-legend">
+      <span><i style="background:var(--tuf)"></i>dzień w drodze</span>
+      <span><i style="background:var(--sage)"></i>baza Erywań</span>
+      <span><i style="background:var(--burgundy)"></i>lot ✈</span>
+    </div>
+    <div id="calendar"></div>
+  </section>
+
+  <!-- NOCLEGI -->
+  <section class="panel" id="noclegi">
+    <div id="stays"></div>
+    <p class="budget-note" style="margin-top:6px">Dane trzymane lokalnie na tym urządzeniu (localStorage). Wyczyszczenie danych przeglądarki je usunie.</p>
+  </section>
+
+  <!-- DO ZOBACZENIA -->
+  <section class="panel" id="zobaczyc">
+    <div class="sub-nav" id="nz-subnav">
+      <button class="snb active" data-s="miejsca">📍 Miejsca</button>
+      <button class="snb" data-s="kultura">📚 Kultura</button>
+      <button class="snb" data-s="jezyk">🗣 Język</button>
+    </div>
+
+    <div class="nz-sub" id="nz-miejsca">
+      <div class="see-filter" id="see-filter">
+        <button class="sf active" data-f="all">Wszystko</button>
+        <button class="sf" data-f="star">⭐ Must-see</button>
+        <button class="sf" data-f="todo">Do zrobienia</button>
+      </div>
+      <div id="see-list"></div>
+    </div>
+
+    <div class="nz-sub" id="nz-kultura" style="display:none">
+      <div id="culture-list"></div>
+    </div>
+
+    <div class="nz-sub" id="nz-jezyk" style="display:none">
+      <div id="lang-content"></div>
+    </div>
+  </section>
+
+  <!-- BUDŻET -->
+  <section class="panel" id="budzet">
+    <div class="budget-card">
+      <div class="brow h"><span>Kategoria</span><span style="text-align:right">Stawka $</span><span style="text-align:center">×</span><span style="text-align:right">Suma</span></div>
+      <div id="budget-rows"></div>
+    </div>
+    <div class="btotal">
+      <div><div class="t-lbl">Razem na miejscu</div></div>
+      <div><div class="t-val" id="b-total">€0</div><div class="t-pln" id="b-pln">0 zł</div></div>
+    </div>
+    <div class="rate-row">Kurs EUR→PLN: <input id="rate" type="number" value="4.3" step="0.05" min="1"></div>
+    <p class="budget-note">Kwoty w euro (€), szacunki na 1 osobę. Nocleg w Erywaniu — realny koszt z rezerwacji. Nie obejmują lotów (KRK–PFO, LCA–LWN, EVN–LCA) ani zabiegu na Cyprze.</p>
+  </section>
+
+  <!-- INSTAGRAM -->
+  <section class="panel" id="instagram">
+    <div id="ig-cards"></div>
+  </section>
+
+  <!-- LOTY -->
+  <section class="panel" id="loty">
+    <div id="flights"></div>
+  </section>
+
+  <!-- CHECKLIST -->
+  <section class="panel" id="checklist">
+    <div id="checks"></div>
+  </section>
+</main>
+
+<footer>
+  <span class="arm-sig">Բարի ճանապարհ</span>
+  Dobrej drogi · plan Armenia 2026
+  <div class="data-bar">
+    <button id="export-btn" class="data-btn">⬇ Eksportuj dane (backup)</button>
+    <button id="import-btn" class="data-btn">⬆ Importuj dane</button>
+    <input type="file" id="import-file" accept="application/json,.json" style="display:none">
+  </div>
+  <div id="data-msg" class="data-msg"></div>
+</footer>
+
+<script>
+/* ============ DATA ============ */
+const DAYS=[
+ {d:"17",m:"wrz",wd:"czw",route:"Larnaka → Gyumri",type:"flight",see:"Przylot rano (~10:20). Cały dzień w Gyumri.",
+  transport:"Lot BRWY2H, wylot LCA 06:20",stay:"Gyumri",
+  detail:"Plac Vardanants, dzielnica Kumayri z czarnego tufu, galeria sióstr Aslamazyan. Wieczorem pierwszy khorovats.",
+  note:"Na lotnisku w Larnace bądź ~04:30. Taxi LWN→centrum ~5 km (apka GG/Yandex)."},
+ {d:"18",m:"wrz",wd:"pt",route:"Gyumri",type:"travel",see:"Marmashen, stare miasto, najlepszy chleb w kraju.",
+  transport:"Pieszo + taxi",stay:"Gyumri",
+  detail:"Dzień na aklimatyzację. Po południu klasztor Marmashen nad rzeką (20 min taxi).",note:"KOLEJ: Gyumri↔Erywań to najlepszy przejazd pociągiem w kraju (~3h, $3–5, kilka razy dziennie; weekendowy ekspres 2h10 z klimą). Stary ER2 przez płaskowyż Szirak — dla miłośnika kolei obowiązkowy. Rozkład na railway.am."},
+ {d:"19",m:"wrz",wd:"sob",route:"Gyumri → wąwóz Debed",type:"travel",see:"Przejazd na wschód, klasztor Sanahin (UNESCO).",
+  transport:"Marszrutka przez Vanadzor",stay:"Odzun / Alaverdi",
+  detail:"Gyumri→Vanadzor ~1h, przesiadka na Alaverdi ~1h. Po południu Sanahin.",note:"Sowiecko-industrialny sznyt Alaverdi w tle."},
+ {d:"20",m:"wrz",wd:"nd",route:"Debed → Dilijan",type:"travel",see:"Haghpat (UNESCO), potem zielony Dilijan.",
+  transport:"Marszrutka",stay:"Dilijan",
+  detail:"Rano Haghpat z widokami na wąwóz, powrót przez Vanadzor do Dilijanu.",note:"Haghpat + Sanahin to para wpisana na listę UNESCO."},
+ {d:"21",m:"wrz",wd:"pn",route:"Dilijan → Sewan → Goris",type:"travel",see:"Sewan i przełęcz Selim w drodze na dalekie południe.",
+  transport:"Shared taxi / marszrutka",stay:"Goris",
+  detail:"Długi dzień jazdy: Sevanavank nad jeziorem, przełęcz Vardenyats (Selim) z karawanserajem, dalej na południe do Goris.",
+  note:"Najdłuższy transfer wyjazdu. Rozważ wynajęte auto/kierowcę na ten odcinek."},
+ {d:"22",m:"wrz",wd:"wt",route:"Tatev + Chndzoresk",type:"travel",see:"Najdłuższa kolejka świata i jaskiniowe miasto.",
+  transport:"Kolejka Wings of Tatev + taxi",stay:"Goris",
+  detail:"Kolejka z Halidzor (10:00–19:00) nad wąwozem Worotan, klasztor Tatev, Diabelski Most. Po południu Chndzoresk — most wiszący.",
+  note:"Kup bilet online (tatever.am). Zamknięta w pon. — wtorek OK. ~9000 AMD w obie strony."},
+ {d:"23",m:"wrz",wd:"śr",route:"Goris → Noravank/Areni → okolice Erywania",type:"travel",see:"Czerwony wąwóz, winnice, Chor Wirap w drodze na północ.",
+  transport:"Shared taxi / marszrutka",stay:"Bufor — do rozegrania",
+  detail:"Powrót na północ. Po drodze Noravank, degustacja w Areni (winobranie), Chor Wirap z Araratem. Nocleg elastyczny.",
+  note:"BUFOR: śpisz gdzie wyjdzie (Goris dłużej, coś po drodze, albo Erywań). Meldunek u Nary dopiero 24.09."},
+ {d:"24",m:"wrz",wd:"czw",route:"Erywań — meldunek u Nary",type:"base",see:"Start bazy. Kaskady, Matenadaran, Saryan St.",
+  transport:"Dojazd do Erywania / pieszo",stay:"Erywań — Room #1 (Nara)",
+  detail:"Meldunek u Nary od 13:00 (7 nocy do 01.10). Kaskady o zachodzie (Ararat), Matenadaran, wieczór na Saryan St. z winem.",
+  note:"Adres: 1 Gyulbenkyan St, Apt 22. Kod HMW5CRZ33S. Start tygodnia bazowego."},
+ {d:"25",m:"wrz",wd:"pt",route:"Garni + Geghard",type:"base",see:"Świątynia Garni i klasztor wykuty w skale.",
+  transport:"Bus 266/284 lub day tour",stay:"Erywań — Room #1 (Nara)",
+  detail:"Pogańska świątynia Garni z I w., klasztor Geghard w litej skale, „Symfonia kamieni” (bazaltowe organy).",note:"Do Geghard z Garni taksówką ~10 min."},
+ {d:"26",m:"wrz",wd:"sob",route:"Eczmiadzyn + Zwartnoc",type:"base",see:"Katedra Ormian, ruiny, wieczorem koniak.",
+  transport:"POCIĄG (Erywań→Armawir) lub marszrutka",stay:"Erywań — Room #1 (Nara)",
+  detail:"Katedra w Eczmiadzynie (Watykan Ormian), ruiny Zwartnoc; wieczorem fabryka koniaku Ararat z degustacją.",note:"KOLEJ: pociąg Erywań→Araks/Armawir zatrzymuje się w Eczmiadzynie (stacja Etchmiadzin) — powolny, lokalny, klimatyczny. Bilet na dworcu. Degustację koniaku zarezerwuj wcześniej."},
+ {d:"27",m:"wrz",wd:"nd",route:"Erywań — miasto",type:"base",see:"Muzeum Ludobójstwa, Vernissage, kawiarnie.",
+  transport:"Pieszo / metro",stay:"Erywań — Room #1 (Nara)",
+  detail:"Dzień w mieście bez transferów: Muzeum Ludobójstwa Cicernakaberd, bazar Vernissage, spacer po Kentronie.",note:"Dzień wolniejszy — regeneracja po południu."},
+ {d:"28",m:"wrz",wd:"pn",route:"Erywań / Aragats (zapas)",type:"base",see:"Amberd i jezioro Kari — albo luz.",
+  transport:"Taxi / tour",stay:"Erywań — Room #1 (Nara)",
+  detail:"Forteca Amberd i jezioro Kari na stokach Aragatsu — albo kawiarnie, Vernissage, pisanie.",note:"Bufor na odpoczynek lub pogodę. (Tatev już zaliczony 22.09.)"},
+ {d:"29",m:"wrz",wd:"wt",route:"Erywań — okolice",type:"base",see:"Elastyczny dzień: co jeszcze zostało.",
+  transport:"Wg wyboru",stay:"Erywań — Room #1 (Nara)",
+  detail:"Zapasowy dzień na cokolwiek pominiętego — dodatkowa winnica, muzeum, albo po prostu miasto.",note:"Luz w planie = mniej stresu."},
+ {d:"30",m:"wrz",wd:"śr",route:"Erywań — finał",type:"base",see:"GUM Market, zakupy, pożegnalna kolacja.",
+  transport:"Pieszo",stay:"Erywań — Room #1 (Nara)",
+  detail:"GUM Market (granaty, suszone owoce), zakupy, Błękitny Meczet, pożegnalna kolacja.",note:"Koniak pakuj do bagażu rejestrowanego, nie do kabiny."},
+ {d:"01",m:"paź",wd:"czw",route:"Erywań → Larnaka",type:"flight",see:"Cały dzień w mieście, wieczorem wylot 18:35.",
+  transport:"Lot IKM2KC, EVN 18:35",stay:"— (lot)",
+  detail:"Lot dopiero wieczorem — masz cały dzień w Erywaniu. Ostatnia kawa, pamiątki. Po poł. transfer na lotnisko.",note:"Checkout u Nary 10:00 — dogadaj bagaż na dzień! Zabieg nazajutrz 02.10."}
+];
+
+const BUDGET=[
+ {l:"Nocleg — Gyumri",r:14,q:2},
+ {l:"Nocleg — Debed (Odzun/Alaverdi)",r:18,q:1},
+ {l:"Nocleg — Dilijan",r:20,q:1},
+ {l:"Nocleg — Erywań (Room #1, potwierdzone)",r:47,q:1},
+ {l:"Nocleg — Goris",r:17,q:2},
+ {l:"Wyżywienie",r:18,q:14},
+ {l:"Transport lokalny (marszrutki/taxi/toury)",r:110,q:1},
+ {l:"Atrakcje/bilety (Tatev, muzea, degustacje)",r:148,q:1},
+ {l:"Wino/koniak/pamiątki",r:55,q:1},
+ {l:"Rezerwa/bufor",r:75,q:1}
+];
+
+const STOPS=[
+ {name:"Gyumri",coord:[40.7894,43.8475],type:"flight",date:"17–18.09",note:"Wlot (LWN). Czarny tuf, Kumayri, Marmashen."},
+ {name:"Wąwóz Debed (Alaverdi)",coord:[41.0972,44.6600],type:"travel",date:"19–20.09",note:"Sanahin i Haghpat (UNESCO)."},
+ {name:"Dilijan",coord:[40.7408,44.8628],type:"travel",date:"20–21.09",note:"„Ormiańska Szwajcaria”, Haghartsin."},
+ {name:"Jezioro Sewan",coord:[40.5667,45.0000],type:"travel",date:"21.09",note:"Sevanavank po drodze do Erywania."},
+ {name:"Erywań (baza)",coord:[40.1942,44.5000],type:"base",date:"24.09–01.10",note:"Room #1 (Nara), 1 Gyulbenkyan St. Kaskady, Matenadaran, Saryan."},
+ {name:"Garni + Geghard",coord:[40.1122,44.7280],type:"base",date:"23.09",note:"Świątynia Garni, klasztor w skale."},
+ {name:"Chor Wirap",coord:[39.8781,44.5772],type:"travel",date:"23.09",note:"Klasztor na tle Araratu."},
+ {name:"Noravank / Areni",coord:[39.6847,45.2331],type:"travel",date:"23.09",note:"Czerwony wąwóz, winnice."},
+ {name:"Eczmiadzyn",coord:[40.1622,44.2916],type:"base",date:"25.09",note:"Katedra, Zwartnoc."},
+ {name:"Goris",coord:[39.5108,46.3400],type:"travel",date:"21–23.09",note:"Baza południa, Chndzoresk, most wiszący."},
+ {name:"Tatev",coord:[39.3800,46.2497],type:"travel",date:"22.09",note:"Wings of Tatev (10–19), klasztor nad przepaścią. Bilet online."}
+];
+
+const CULTURE=[
+ {cat:"Filmy",items:[
+   {t:"Kolor granatu (Sayat Nova)",m:"1969 · Siergiej Paradżanow",star:true,d:"Wizualny poemat o życiu XVIII-wiecznego trubadura Sayat-Nowy. Nie fabuła, tylko ciąg olśniewających obrazów-tableaux z ormiańskiej ikonografii. Jedno z arcydzieł kina światowego — obejrzyj przed wyjazdem, żeby zobaczyć kraj jego oczami."},
+   {t:"Mayrig",m:"1991 · Henri Verneuil",d:"Saga ormiańskiej rodziny uchodźców po ludobójstwie, osiedlającej się we Francji. Osobista, rzewna opowieść reżysera o własnym dzieciństwie."},
+   {t:"Ararat",m:"2002 · Atom Egoyan",d:"Diaspora ormiańsko-kanadyjska mierzy się z pamięcią ludobójstwa. Film w filmie, o tym jak (i czy) da się to w ogóle pokazać."},
+   {t:"Kalendarz (Calendar)",m:"1993 · Atom Egoyan",d:"Medytacja o tożsamości, kraju i pamięci — fotograf jeździ po ormiańskich klasztorach. Kameralne, osobiste kino."},
+   {t:"Pory roku (Seasons of the Year)",m:"1975 · Artavazd Peleszjan",d:"Bezsłowny dokument-poemat o człowieku i naturze w ormiańskich górach. Legendarny montaż."},
+ ]},
+ {cat:"Książki",items:[
+   {t:"Czterdzieści dni Musa Dagh",m:"Franz Werfel",star:true,d:"Epicka powieść o ormiańskich wieśniakach broniących się na górze Mojżesza przed deportacją w 1915. Najważniejsze literackie ujęcie ludobójstwa, napisane jeszcze w latach 30."},
+   {t:"Czarny pies losu (Black Dog of Fate)",m:"Peter Balakian",d:"Wielokrotnie nagradzany pamiętnik Amerykanina ormiańskiego pochodzenia, odkrywającego rodzinną historię ludobójstwa. Dobry punkt wejścia."},
+   {t:"Bękart ze Stambułu",m:"Elif Şafak",d:"Powieść splatająca losy rodziny tureckiej i ormiańsko-amerykańskiej, sięgająca do przemilczanej przeszłości. Napisana z tureckiej perspektywy."},
+   {t:"Operation Nemesis",m:"Eric Bogosian",d:"Reporterska opowieść o spisku ocalałych, którzy po 1915 wytropili i zgładzili sprawców ludobójstwa. Czyta się jak thriller."},
+   {t:"The Fool (Խենթը)",m:"Raffi, 1880",d:"Klasyk ormiańskiej literatury XIX w., jedna z najsłynniejszych powieści narodowego pisarza. Dla chętnych sięgnięcia do korzeni."},
+ ]},
+ {cat:"Muzyka i kultura",items:[
+   {t:"Duduk",m:"instrument",star:true,d:"Podwójnostroikowy instrument z drewna morelowego, wpisany na listę UNESCO. Ten rzewny, gardłowy dźwięk to brzmienie Armenii — posłuchaj Dżiwana Gasparjana."},
+   {t:"Komitas",m:"kompozytor",d:"Ojciec ormiańskiej muzyki klasycznej, etnograf, który ocalił tysiące ludowych pieśni. Ikona kultury; jego imię nosi konserwatorium w Erywaniu."},
+   {t:"Chaczkary",m:"kamienne krzyże",d:"Rzeźbione kamienne stele-krzyże, każdy inny, pokryte plecionką. Symbol Armenii, też na liście UNESCO — zobaczysz je przy każdym klasztorze."},
+ ]},
+];
+
+const ALPHABET=[
+ {c:"Ա",t:"A"},{c:"Բ",t:"B"},{c:"Գ",t:"G"},{c:"Դ",t:"D"},{c:"Ե",t:"Je/E"},
+ {c:"Զ",t:"Z"},{c:"Է",t:"E"},{c:"Ը",t:"y"},{c:"Թ",t:"T'"},{c:"Ժ",t:"Ż"},
+ {c:"Ի",t:"I"},{c:"Լ",t:"L"},{c:"Խ",t:"Ch"},{c:"Ծ",t:"C"},{c:"Կ",t:"K"},
+ {c:"Հ",t:"H"},{c:"Ձ",t:"Dz"},{c:"Ղ",t:"Gh"},{c:"Ճ",t:"Cz"},{c:"Մ",t:"M"},
+ {c:"Յ",t:"J"},{c:"Ն",t:"N"},{c:"Շ",t:"Sz"},{c:"Ո",t:"Wo/O"},{c:"Չ",t:"Cz'"},
+ {c:"Պ",t:"P"},{c:"Ջ",t:"Dż"},{c:"Ռ",t:"R"},{c:"Ս",t:"S"},{c:"Վ",t:"W"},
+ {c:"Տ",t:"T"},{c:"Ր",t:"r"},{c:"Ց",t:"C'"},{c:"Ւ",t:"w"},{c:"Փ",t:"P'"},
+ {c:"Ք",t:"K'"},{c:"Օ",t:"O"},{c:"Ֆ",t:"F"},{c:"և",t:"jew"},
+];
+
+const PHRASES=[
+ {sec:"Podstawy",list:[
+   {arm:"Բարև ձեզ",lat:"barew dzez",pl:"Dzień dobry (formalnie)"},
+   {arm:"Բարև",lat:"barew",pl:"Cześć"},
+   {arm:"Շնորհակալություն",lat:"sznorhakalut'jun",pl:"Dziękuję"},
+   {arm:"Հաճելի է",lat:"hačeli e",pl:"Proszę / nie ma za co"},
+   {arm:"Այո / Ոչ",lat:"ajo / wocz",pl:"Tak / Nie"},
+   {arm:"Ներեցեք",lat:"nerec'ek",pl:"Przepraszam"},
+   {arm:"Ցտեսություն",lat:"c'tesut'jun",pl:"Do widzenia"},
+ ]},
+ {sec:"W podróży",list:[
+   {arm:"Ինչքա՞ն արժե",lat:"inczk'an arże",pl:"Ile to kosztuje?"},
+   {arm:"Որտե՞ղ է...",lat:"wortegh e...",pl:"Gdzie jest...?"},
+   {arm:"Ջուր",lat:"dżur",pl:"Woda"},
+   {arm:"Սուրճ",lat:"surcz",pl:"Kawa"},
+   {arm:"Հաշիվը, խնդրում եմ",lat:"hasziwy, chndrum em",pl:"Rachunek proszę"},
+   {arm:"Ես չեմ հասկանում",lat:"jes czem haskanum",pl:"Nie rozumiem"},
+   {arm:"Օգնե՛ք",lat:"ognek'",pl:"Pomocy!"},
+ ]},
+ {sec:"Miło usłyszeć",list:[
+   {arm:"Կենաց",lat:"kenac'",pl:"Na zdrowie! (toast)"},
+   {arm:"Անուշ",lat:"anusz",pl:"Smacznego"},
+   {arm:"Շատ լավ",lat:"szat law",pl:"Bardzo dobrze"},
+   {arm:"Գեղեցիկ",lat:"gegheci'k",pl:"Piękne"},
+ ]},
+];
+
+// Editable accommodation slots (matched to stay-nights)
+const SEE=[
+ {cat:"Klasztory i zabytki",items:[
+   {n:"Klasztor Sanahin (UNESCO)",day:"19.09",star:true},
+   {n:"Klasztor Haghpat (UNESCO)",day:"20.09",star:true},
+   {n:"Klasztor Haghartsin",day:"20.09"},
+   {n:"Klasztor Sevanavank",day:"21.09",star:true},
+   {n:"Karawanseraj Selim",day:"21.09"},
+   {n:"Klasztor Tatev",day:"22.09",star:true},
+   {n:"Diabelski Most (Satani Kamurj)",day:"22.09"},
+   {n:"Klasztor Noravank",day:"23.09",star:true},
+   {n:"Klasztor Chor Wirap",day:"23.09",star:true},
+   {n:"Świątynia Garni",day:"25.09",star:true},
+   {n:"Klasztor Geghard (UNESCO)",day:"25.09",star:true},
+   {n:"Katedra w Eczmiadzynie (UNESCO)",day:"26.09"},
+   {n:"Ruiny Zwartnoc (UNESCO)",day:"26.09"},
+ ]},
+ {cat:"Miasta i Erywań",items:[
+   {n:"Gyumri — Kumayri (czarny tuf)",day:"17–18.09",star:true},
+   {n:"Dilijan — stara uliczka Sharambeyan",day:"20.09"},
+   {n:"Goris — kamienne stare miasto",day:"21–23.09"},
+   {n:"Kaskady + widok na Ararat",day:"24–30.09",star:true},
+   {n:"Plac Republiki (śpiewające fontanny)",day:"baza"},
+   {n:"Matenadaran (rękopisy)",day:"baza",star:true},
+   {n:"Muzeum Ludobójstwa Cicernakaberd",day:"27.09"},
+   {n:"Bazar Vernissage",day:"baza"},
+ ]},
+ {cat:"Natura i punkty widokowe",items:[
+   {n:"Klasztor Marmashen",day:"18.09"},
+   {n:"Jezioro Sewan — kąpiel",day:"21.09"},
+   {n:"Chndzoresk — jaskiniowe miasto + most",day:"22.09",star:true},
+   {n:"Forteca Amberd + jezioro Kari",day:"28.09(zapas)"},
+ ]},
+ {cat:"Wino i koniak",items:[
+   {n:"Areni — winnice + jaskinia Areni-1",day:"23.09",star:true},
+   {n:"Fabryka koniaku Ararat (degustacja)",day:"26.09",star:true},
+   {n:"GUM Market",day:"30.09",star:true},
+ ]},
+];
+
+const STAYS=[
+ {loc:"Gyumri",nights:"17–19.09 · 2 noce"},
+ {loc:"Wąwóz Debed (Odzun/Alaverdi)",nights:"19–20.09 · 1 noc"},
+ {loc:"Dilijan",nights:"20–21.09 · 1 noc"},
+ {loc:"Goris (południe)",nights:"21–23.09 · 2 noce"},
+ {loc:"Bufor 23→24.09 (elastyczny)",nights:"do rozegrania na miejscu"}
+];
+
+// Confirmed booking, not editable
+const BOOKED={
+ loc:"Erywań — Room #1 (Nara)",
+ nights:"24.09–01.10 · 7 nocy",
+ addr:"1 Gyulbenkyan Street, Apt 22, Room #1, Erywań 0019",
+ code:"HMW5CRZ33S",
+ price:"51,40 $ (~47 €) · całość",
+ checkin:"24.09 · 13:00",
+ checkout:"01.10 · 10:00",
+ tel:"+374 91 010248",
+ url:"https://www.airbnb.pl/rooms/41814053",
+ note:"Wymeldowanie 10:00, lot 18:35 — dogadaj przechowanie bagażu z Narą. Dzielnica Arabkir, ~10 min autem do centrum."
+};
+
+const IG=[
+ {p:"Gyumri",t:"Post",c:"Kraj numer 66. Zaczynam nie od stolicy, ale od Gyumri — miasta z czarnego tufu, które przetrwało trzęsienie ziemi i nie stara się nikomu przypodobać. Najlepszy chleb, najsuchszy humor, zero filtra. Armenia, dzień pierwszy.",h:"#Armenia #Gyumri #Kaukaz #travel #66krajów #offbeat #podróże #Հայաստան",
+  vo:"Cześć z Armenii — kraj numer sześćdziesiąt sześć. I nie zaczynam od stolicy, tylko tutaj, w Gyumri. Całe miasto zbudowane z czarnego kamienia, przetrwało potężne trzęsienie ziemi w osiemdziesiątym ósmym i ma najlepszy chleb, jaki w życiu jadłem. Zero turystów, zero filtra. Lecimy.",
+  reel:["0–2 s: czarny ekran → nagły cut na tabliczkę „GYUMRI” / tekst: „kraj nr 66”","2–5 s: powolny obrót kamery po placu Vardanants, budynki z czarnego tufu","5–8 s: detal — ręce łamiące świeży chleb, para","8–12 s: przechodzień, uliczka Kumayri, tekst: „miasto, które przetrwało 1988”","12–15 s: szeroki na stare domy o zachodzie / napis: „Armenia. dzień 1”","Muzyka: duduk + nowoczesny beat (np. coś z ormiańskiego lo-fi). Tempo wolne."]},
+ {p:"Wąwóz Debed",t:"Rolka",c:"Dwa klasztory z listy UNESCO wiszące nad wąwozem, do których dojeżdża się rozklekotaną marszrutką za dolara. Sanahin i Haghpat — tysiąc lat kamienia, mchu i ciszy. Tego nie ma w folderach.",h:"#Haghpat #Sanahin #Armenia #UNESCO #wąwózDebed #slowtravel #Kaukaz",
+  vo:"Dojechałem tu marszrutką za jednego dolara. A stoję przed klasztorem, który ma tysiąc lat i jest na liście UNESCO. To jest właśnie Armenia — cuda, do których nikt cię nie wiezie, bo trzeba wiedzieć, że w ogóle istnieją.",
+  reel:["0–3 s: POV z okna marszrutki, mijane góry, tekst: „1 dolar. 1000 lat”","3–6 s: wysiadka, pierwszy widok kamiennego klasztoru zza drzew","6–9 s: wejście przez kamienny łuk — przejście z jasności w cień","9–13 s: detale: mech na chaczkarach, promień światła w środku","13–16 s: szeroki na wąwóz z klasztorem na krawędzi / napis: „Haghpat”","Muzyka: ambient chóralny (ormiański śpiew sakralny), narastający."]},
+ {p:"Dilijan",t:"Post",c:"Mówią na to „ormiańska Szwajcaria” i pierwszy raz taki przydomek nie kłamie. Las dopiero zaczyna żółknąć, powietrze pachnie żywicą, a ja idę do klasztoru Haghartsin bez planu i bez pośpiechu.",h:"#Dilijan #Armenia #jesień #natura #Haghartsin #travelphotography #Kaukaz",
+  vo:"Mówią na Dilijan „ormiańska Szwajcaria” i pierwszy raz taki przydomek się zgadza. Las dopiero zaczyna żółknąć, pachnie żywicą, a ja idę do klasztoru schowanego między drzewami. Bez mapy, bez planu, bez pośpiechu. Czasem tak trzeba.",
+  reel:["0–3 s: mgła między drzewami, powolny ruch w las, tekst: „ormiańska Szwajcaria?”","3–6 s: buty na leśnej ścieżce, liście, kroki w rytm muzyki","6–10 s: Haghartsin wyłania się zza drzew","10–13 s: obrót 360° w środku dziedzińca","13–16 s: filiżanka herbaty/kawy na tle lasu / napis: „bez planu”","Muzyka: akustyczna gitara + śpiew ptaków, spokojna."]},
+ {p:"Jezioro Sewan",t:"Rolka",c:"1900 metrów nad poziomem morza, woda w kolorze, którego nie da się podrobić. Sevanavank — klasztor na półwyspie, z którego widać całe niebo. Kąpiel we wrześniu? Tylko dla twardzieli. Byłem.",h:"#LakeSevan #Sewan #Armenia #Sevanavank #Kaukaz #wildswimming #podróże",
+  vo:"Jestem tysiąc dziewięćset metrów nad poziomem morza. To jest jezioro Sewan — największe w całym Kaukazie. Woda ma kolor, którego nie da się podrobić. Kąpiel we wrześniu? Podobno tylko dla wariatów. No to wchodzę.",
+  reel:["0–2 s: schody w górę do klasztoru, dysząca kamera, tekst: „1900 m n.p.m.”","2–5 s: nagły reveal — całe jezioro otwiera się w kadrze","5–8 s: klasztor Sevanavank z lotu ptaka / drona jeśli masz","8–11 s: stopa dotyka wody → skok do jeziora (slow-mo plusk)","11–15 s: wynurzenie, śmiech, dygotanie / napis: „tylko dla twardzieli”","Muzyka: energetyczny drop w momencie skoku (15 s = plusk na beat)."]},
+ {p:"Kaskady / Erywań",t:"Post",c:"Erywań budzi się różowy — całe miasto z tufu w kolorze łososia, a nad nim, jeśli mgła odpuści, Ararat. Góra, która jest symbolem Armenii i leży dziś po drugiej stronie granicy. Cała historia tego kraju w jednym widoku z tarasu Kaskad.",h:"#Yerevan #Erywań #Ararat #Cascade #Armenia #cityscape #Կասկադ",
+  vo:"Erywań budzi się różowy. Serio — całe miasto jest z kamienia w kolorze łososia. A tam, na horyzoncie, jeśli mgła odpuści, stoi Ararat. Symbol Armenii, święta góra… która dziś leży już po drugiej stronie granicy. Cała historia tego kraju w jednym widoku.",
+  reel:["0–3 s: timelapse wschodu słońca nad miastem, tekst: „Erywań budzi się różowy”","3–6 s: wjazd schodami/eskalatorem Kaskad w górę","6–9 s: reveal Araratu nad dachami (poczekaj na czyste rano!)","9–12 s: detale rzeźb na tarasach Kaskad","12–16 s: szeroki panoramiczny na miasto + góra / napis: „symbol, którego nie ma po tej stronie granicy”","Muzyka: podniosła, orkiestrowa narastająca do widoku Araratu."]},
+ {p:"Garni + Geghard",t:"Rolka",c:"Pogańska świątynia z I wieku i klasztor wykuty w litej skale, w którym śpiew niesie się jak w organach. Garni i Geghard w jeden dzień — od rzymskich kolumn do bazaltowych „kamiennych symfonii”.",h:"#Garni #Geghard #Armenia #history #templeofgarni #Kaukaz #travel",
+  vo:"Dwa miejsca, jeden dzień. Najpierw Garni — jedyna pogańska świątynia, jaka przetrwała w Armenii, ma prawie dwa tysiące lat. A potem Geghard: klasztor wykuty w litej skale. Posłuchajcie tylko, jak niesie się tu głos. Kamień, który śpiewa.",
+  reel:["0–3 s: kolumny Garni w kontrze słońca, tekst: „I wiek n.e.”","3–6 s: przejazd/przejście — cięcie do wnętrza Geghard w skale","6–9 s: ktoś śpiewa w komorze — nagraj REALNE echo (to robi robotę)","9–12 s: promień światła z otworu w skalnym sklepieniu","12–16 s: bazaltowe organy „Symfonia kamieni” w wąwozie / napis: „kamień, który śpiewa”","Muzyka: zacznij od ciszy, wejdź realnym śpiewem z Geghard, potem podkład."]},
+ {p:"Chor Wirap + Ararat",t:"Post",c:"Najbliżej Araratu, jak Armenia może podejść — Chor Wirap, klasztor na tle góry, do której nie ma już dostępu. Winobranie w Areni, kieliszek czegoś z gliny sprzed 6000 lat w tle. Najstarsza winiarnia świata nie jest metaforą.",h:"#KhorVirap #Ararat #Areni #wine #Armenia #winobranie #Խորվիրապ",
+  vo:"To jest najbliżej Araratu, jak Armenia może się podejść. Klasztor Chor Wirap, a za nim ta ogromna góra, do której nie ma już dostępu. A tu, w Areni, leję sobie wino z glinianego dzbana — bo to najstarszy region winiarski świata. Sześć tysięcy lat. To nie przenośnia.",
+  reel:["0–3 s: klasztor Chor Wirap mały na tle ogromnego Araratu, tekst: „tak blisko, a nie dojdziesz”","3–6 s: zbliżenie na szczyt góry w chmurach","6–9 s: cięcie do winnicy Areni — dłonie zbierające winogrona","9–12 s: wino lane do glinianego kielicha, tekst: „6000 lat winiarstwa”","12–16 s: toast pod górę / napis: „najstarsza winiarnia świata”","Muzyka: ciepła, folkowa, ormiański instrument strunowy (kanun/oud)."]},
+ {p:"Tatev",t:"Rolka",c:"Najdłuższa kolejka linowa świata, pod nią wąwóz Worotan, a na końcu klasztor Tatev zawieszony nad przepaścią od IX wieku. 12 minut nad pustką, które pamięta się latami.",h:"#Tatev #WingsofTatev #Armenia #Goris #Syunik #cablecar #Տաթև #podróże",
+  vo:"Wsiadam do najdłuższej kolejki linowej na świecie. Pode mną — wąwóz. Kilkaset metrów pustki. A na końcu tej trasy, na samej krawędzi urwiska, stoi klasztor Tatev. Od dziewiątego wieku. Dwanaście minut, których się nie zapomina.",
+  reel:["0–2 s: drzwi kolejki się zamykają, tekst: „najdłuższa kolejka świata”","2–6 s: POV w dół przez szybę — wąwóz Worotan pod nogami","6–9 s: kolejka sunie, cień na zboczu, skala przepaści","9–13 s: reveal klasztoru Tatev na krawędzi urwiska","13–16 s: spacer pod murami, kamera w górę / napis: „IX wiek, nad pustką”","Muzyka: napięcie w kabinie → rozładowanie przy widoku klasztoru."]},
+ {p:"Chndzoresk",t:"Post",c:"Miasto wykute w skałach, w którym ludzie mieszkali w jaskiniach jeszcze w latach 50. Schodzę mostem wiszącym nad wąwozem do świata, który wygląda jak dekoracja, a był po prostu czyimś domem.",h:"#Khndzoresk #Armenia #Goris #cavetown #Kaukaz #offthebeatenpath",
+  vo:"Widzicie te dziury w skałach? To były domy. Ludzie mieszkali w tych jaskiniach jeszcze w latach pięćdziesiątych. Schodzę teraz mostem wiszącym nad wąwozem do miasta, które wygląda jak filmowa dekoracja — a przez wieki było po prostu czyimś domem.",
+  reel:["0–3 s: krawędź wąwozu, reveal jaskiniowego miasta w dole, tekst: „ludzie żyli tu do lat 50.”","3–7 s: pierwszy krok na kołyszący się most wiszący (pokaż ruch!)","7–10 s: POV przejścia nad przepaścią","10–13 s: wejście do skalnej groty — pustka w środku","13–16 s: kamera wychodzi z jaskini ku światłu / napis: „czyjś dom”","Muzyka: minimalistyczna, perkusja + duduk, tajemnicza."]},
+ {p:"GUM Market / finał",t:"Rolka",c:"Ostatni dzień: GUM Market, ściany granatów, góry suszonych moreli, sujuk na sznurkach i pani, która każe próbować wszystkiego. Pakuję koniak do walizki i już wiem, że wrócę. Armenia — dużo więcej niż punkt na liście.",h:"#Yerevan #GUMmarket #Armenia #food #pomegranate #travel #66krajów",
+  vo:"Ostatni dzień. Jestem na GUM Market w Erywaniu i… patrzcie na to. Ściany granatów, góry suszonych moreli, ser, sudżuk, a każda pani każe próbować wszystkiego. Pakuję butelkę koniaku do walizki i już wiem jedno: tu wrócę. Armenia — dużo więcej niż punkt na liście.",
+  reel:["0–3 s: szybkie cięcia kolorów rynku — granaty, morele, sujuk, tekst: „ostatni dzień”","3–6 s: sprzedawczyni podaje próbkę wprost do kamery, uśmiech","6–9 s: dłoń rozkraja granat, sok, ziarna z bliska","9–12 s: koniak Ararat pakowany do walizki","12–16 s: zamek walizki się zamyka / napis: „wrócę. Armenia — 66/∞”","Muzyka: nostalgiczna wersja motywu z pierwszej rolki (klamra serii)."]}
+];
+
+const FLIGHTS=[
+ {ico:"✈",route:"Kraków → Pafos",meta:"FR5087 · rez. G6I99X · 14 wrz, nd",note:"Ląduje na lunch. Kilka dni u znajomych + kontrola 16.09.",time:"08:10",sub:"→ 12:10 (3h)"},
+ {ico:"✈",route:"Larnaka → Gyumri",meta:"rez. BRWY2H · 17 wrz, czw",note:"Wczesny wylot! Nocuj 16.09 blisko lotniska Larnaka, bądź ~04:30. (Wizz LWN↔LCA od 30.09 lata wt/sob — twój lot to potwierdzona rezerwacja.)",time:"06:20",sub:"UTC+3 → ~10:20"},
+ {ico:"✈",route:"Erywań → Larnaka",meta:"rez. IKM2KC · 1 paź, czw",note:"Cały dzień w Erywaniu przed lotem. Zabieg nazajutrz 02.10. (Trasa EVN→LCA z Zvartnots — inna niż Gyumri.)",time:"18:35",sub:"UTC+4 → wieczór"}
+];
+
+const CHECKS=[
+ {t:"Potwierdzić odprawę: FR5087 (14.09)",w:"24-48h przed"},
+ {t:"Nocleg w Larnace 16→17.09 blisko lotniska (wylot 06:20!)",w:"pilne"},
+ {t:"Transfer/taxi na lotnisko Larnaka 17.09 ~04:30",w:"zorganizuj"},
+ {t:"Zarezerwować Pokój nr 1 (Nara) — daty do 01.10, nie 30.09!",w:"dziś"},
+ {t:"Dogadać z Narą przechowanie bagażu 01.10 (lot 18:35)",w:"przed przyjazdem"},
+ {t:"Kup bilet Wings of Tatev online (tatever.am) na 22.09 — wtorek, czynne",w:"przed 20.09"},
+ {t:"Sprawdź rozkład kolei na railway.am (Gyumri↔Erywań, Eczmiadzyn) — zmienia się sezonowo",w:"na miejscu"},
+ {t:"Doğu Ekspresi Kars→Ankara — bilety 60 dni przed (~10.08)",w:"przypomnienie"},
+ {t:"Notatka od chirurga: rodzaj szwów + paszport implantu",w:"po zabiegu"},
+ {t:"Wypłacić dramy z bankomatu (poza Erywaniem karty słabo)",w:"na LWN"},
+ {t:"Apka GG / Yandex Go (taksówki)",w:"przed wylotem"},
+ {t:"Ubezpieczenie: Armenia + Turcja",w:"przed wylotem"},
+ {t:"Warstwy: polar + kurtka (noce i góry >1900 m, przymrozki)",w:"pakowanie"}
+];
+
+/* ============ RENDER ============ */
+const $=(s,e=document)=>e.querySelector(s);
+const el=(t,c,h)=>{const x=document.createElement(t);if(c)x.className=c;if(h!=null)x.innerHTML=h;return x;};
+
+// tabs
+const tabs=[...document.querySelectorAll('.tab')];
+tabs.forEach(b=>b.onclick=()=>{
+  tabs.forEach(t=>t.classList.remove('active'));b.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  $('#'+b.dataset.p).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+function goTab(id){const b=tabs.find(t=>t.dataset.p===id);if(b)b.click();}
+
+// itinerary
+const daysWrap=$('#days');
+
+// --- persistent day edits, badges, food ---
+let dayEdits={}, dayFlags={}, dayFood={};
+try{dayEdits=JSON.parse(localStorage.getItem('arm-dayedits')||'{}');}catch(e){}
+try{dayFlags=JSON.parse(localStorage.getItem('arm-dayflags')||'{}');}catch(e){}
+try{dayFood=JSON.parse(localStorage.getItem('arm-dayfood')||'{}');}catch(e){}
+function saveEdits(){try{localStorage.setItem('arm-dayedits',JSON.stringify(dayEdits));}catch(e){}}
+function saveFlags(){try{localStorage.setItem('arm-dayflags',JSON.stringify(dayFlags));}catch(e){}}
+function saveFood(){try{localStorage.setItem('arm-dayfood',JSON.stringify(dayFood));}catch(e){}}
+// effective value: edited override or default
+function dv(i,key){const e=dayEdits[i]||{};return (e[key]!=null&&e[key]!=='')?e[key]:DAYS[i][key];}
+
+function foodHtml(i){
+  const list=dayFood[i]||[];
+  const items=list.map((f,fi)=>`<div class="food-item"><div class="fi-main"><div class="fi-name">${f.name}</div>${f.meta?`<div class="fi-meta">${f.meta}</div>`:''}</div><button class="fi-del" data-i="${i}" data-fi="${fi}" title="Usuń">✕</button></div>`).join('');
+  return `${items}
+    <div class="food-add">
+      <input class="fa-name" data-i="${i}" placeholder="Nazwa lokalu">
+      <input class="fa-meta" data-i="${i}" placeholder="Gdzie / co zjeść / link">
+    </div>
+    <button class="food-add-btn" data-i="${i}">+ dodaj miejsce</button>`;
+}
+
+let dayEditMode={};  // which day is currently in edit mode
+function renderDay(i){
+  const day=DAYS[i];
+  const base=day.type==='base';
+  const fl=dayFlags[i]||{};
+  const c=el('div','day'+(base?' base':'')+(fl.star?' starred':'')+(fl.warn?' warned':''));
+  c.id='day-'+i;
+  const chipTxt=day.type==='flight'?'✈ lot':base?'⌂ baza':'→ w drodze';
+  const isWeekend=day.wd==='sob'||day.wd==='nd';
+  const edited=dayEdits[i]&&Object.values(dayEdits[i]).some(v=>v);
+  const editing=!!dayEditMode[i];
+  const tDetail=(dayEdits[i]||{}).transportDetail||'';
+  const food=dayFood[i]||[];
+
+  // READ VIEW — clean, easy to scan
+  const readView=`
+    <div class="dv-row"><span class="dv-k">Transport</span><span class="dv-v">${dv(i,'transport')}${tDetail?`<br><span class="dv-sub">${tDetail}</span>`:''}</span></div>
+    <div class="dv-row"><span class="dv-k">Program</span><span class="dv-v">${dv(i,'detail')}</span></div>
+    <div class="dv-row"><span class="dv-k">Uwagi</span><span class="dv-v dv-note">${dv(i,'note')}</span></div>
+    <div class="dv-row"><span class="dv-k">Nocleg</span><span class="dv-v">${day.stay}</span></div>
+    ${food.length?`<div class="dv-row"><span class="dv-k">🍽 Jedzenie</span><span class="dv-v">${food.map(f=>`<div class="dv-food"><b>${f.name}</b>${f.meta?` — ${f.meta}`:''}</div>`).join('')}</span></div>`:''}
+    <div class="dv-actions">
+      <button class="day-edit-btn" data-edit="${i}">✎ Edytuj plan</button>
+      <button class="badge-btn star${fl.star?' on':''}" data-i="${i}" data-flag="star" title="Must-see">⭐</button>
+      <button class="badge-btn warn${fl.warn?' on':''}" data-i="${i}" data-flag="warn" title="Uwaga / tricky">❗</button>
+    </div>`;
+
+  // EDIT VIEW — form
+  const editView=`
+    <div class="edit-grid">
+      <label>Transport</label>
+      <input data-i="${i}" data-k="transport" value="${dv(i,'transport').replace(/"/g,'&quot;')}">
+      <label>Szczegóły transportu (godziny, dworzec, nr, koszt)</label>
+      <input data-i="${i}" data-k="transportDetail" value="${tDetail.replace(/"/g,'&quot;')}" placeholder="np. marszrutka 09:00 z dworca Kilikia, 1500 dram">
+      <label>Program</label>
+      <textarea data-i="${i}" data-k="detail" rows="3">${dv(i,'detail')}</textarea>
+      <label>Uwagi</label>
+      <textarea data-i="${i}" data-k="note" rows="2">${dv(i,'note')}</textarea>
+    </div>
+    <div class="food-sec">
+      <h4>🍽 Jedzenie ${(food.length?`(${food.length})`:'')}</h4>
+      <div id="food-${i}">${foodHtml(i)}</div>
+    </div>
+    <div class="dv-actions">
+      <button class="day-done-btn" data-done="${i}">✓ Gotowe</button>
+      ${edited?'<button class="day-reset-btn" data-reset="'+i+'">↺ Przywróć oryginał</button>':''}
+    </div>`;
+
+  c.innerHTML=`
+    <div class="day-top">
+      <div class="date-badge${isWeekend?' weekend':''}"><span class="wd">${day.wd}</span><span class="d">${day.d}</span><span class="m">${day.m}</span></div>
+      <div class="day-head-txt">
+        <div class="day-route">${dv(i,'route')} ${fl.star?'<span style="color:var(--gold)">⭐</span>':''}${fl.warn?'<span style="color:#C0392B">❗</span>':''}</div>
+        <div class="day-see">${dv(i,'see')}</div>
+      </div>
+      <span class="chip">${chipTxt}</span>
+      <span class="expand">⌄</span>
+    </div>
+    <div class="day-body"><div class="day-body-inner">
+      ${editing?editView:readView}
+    </div></div>`;
+  c.querySelector('.day-top').onclick=(ev)=>{if(ev.target.closest('.badge-btn'))return;c.classList.toggle('open');};
+  return c;
+}
+DAYS.forEach((day,i)=>daysWrap.appendChild(renderDay(i)));
+
+function rerenderDay(i,keepOpen){
+  const nc=renderDay(i);
+  if(keepOpen)nc.classList.add('open');
+  daysWrap.replaceChild(nc,$('#day-'+i));
+}
+
+// edit inputs (event delegation) — save silently
+daysWrap.addEventListener('input',e=>{
+  const inp=e.target.closest('[data-k]');if(!inp)return;
+  const i=+inp.dataset.i,k=inp.dataset.k;
+  dayEdits[i]=dayEdits[i]||{};dayEdits[i][k]=inp.value;saveEdits();
+});
+// badges + food + edit-mode (click delegation)
+daysWrap.addEventListener('click',e=>{
+  const edit=e.target.closest('[data-edit]');
+  if(edit){const i=+edit.dataset.edit;dayEditMode[i]=true;rerenderDay(i,true);return;}
+  const done=e.target.closest('[data-done]');
+  if(done){const i=+done.dataset.done;dayEditMode[i]=false;rerenderDay(i,true);if(typeof buildSeeList==='function')buildSeeList();return;}
+  const reset=e.target.closest('[data-reset]');
+  if(reset){const i=+reset.dataset.reset;delete dayEdits[i];saveEdits();dayEditMode[i]=false;rerenderDay(i,true);return;}
+  const bb=e.target.closest('.badge-btn');
+  if(bb){
+    const i=+bb.dataset.i,flag=bb.dataset.flag;
+    dayFlags[i]=dayFlags[i]||{};dayFlags[i][flag]=!dayFlags[i][flag];saveFlags();
+    rerenderDay(i,true);
+    if(typeof buildSeeList==='function')buildSeeList();
+    return;
+  }
+  const add=e.target.closest('.food-add-btn');
+  if(add){
+    const i=+add.dataset.i;
+    const wrap=$('#food-'+i);
+    const name=wrap.querySelector('.fa-name').value.trim();
+    const meta=wrap.querySelector('.fa-meta').value.trim();
+    if(!name)return;
+    dayFood[i]=dayFood[i]||[];dayFood[i].push({name,meta});saveFood();
+    rerenderDay(i,true);
+    return;
+  }
+  const del=e.target.closest('.fi-del');
+  if(del){
+    const i=+del.dataset.i,fi=+del.dataset.fi;
+    dayFood[i].splice(fi,1);saveFood();
+    rerenderDay(i,true);
+    return;
+  }
+});
+
+// calendar
+function buildCalendar(){
+  const cal=$('#calendar');
+  const dow=['pn','wt','śr','czw','pt','sob','nd'];
+  const map={};
+  DAYS.forEach((d,i)=>{map[d.m+'-'+parseInt(d.d)]={...d,idx:i};});
+  // September 2026: 1 Sep = Tuesday (idx 1). October 2026: 1 Oct = Thursday (idx3)
+  const months=[
+    {name:'Wrzesień 2026',key:'wrz',days:30,firstDow:1},
+    {name:'Październik 2026',key:'paź',days:31,firstDow:3}
+  ];
+  months.forEach(mo=>{
+    cal.appendChild(el('div','month-label',mo.name));
+    const grid=el('div','cal-grid');
+    dow.forEach(d=>grid.appendChild(el('div','cal-dow',d)));
+    for(let i=0;i<mo.firstDow;i++)grid.appendChild(el('div','cal-cell empty'));
+    for(let day=1;day<=mo.days;day++){
+      const hit=map[mo.key+'-'+day];
+      if(hit){
+        const cell=el('div','cal-cell trip '+hit.type);
+        const tag=hit.type==='flight'?'✈ lot':hit.type==='base'?'Erywań':hit.route.split('→').pop().trim().slice(0,14);
+        cell.innerHTML=`${hit.type==='flight'?'<span class="cal-fly">✈</span>':''}<div class="cal-num">${day}</div><div class="cal-tag">${tag}</div>`;
+        cell.onclick=()=>{goTab('trasa');setTimeout(()=>{const t=$('#day-'+hit.idx);t.classList.add('open');t.scrollIntoView({behavior:'smooth',block:'center'});},120);};
+        grid.appendChild(cell);
+      }else{
+        const cell=el('div','cal-cell');
+        cell.innerHTML=`<div class="cal-num" style="color:var(--muted);font-weight:400">${day}</div>`;
+        grid.appendChild(cell);
+      }
+    }
+    // trailing empties so the final week row is complete (keeps cells square)
+    const total=mo.firstDow+mo.days;
+    const trail=(7-(total%7))%7;
+    for(let i=0;i<trail;i++)grid.appendChild(el('div','cal-cell empty'));
+    cal.appendChild(grid);
+  });
+}
+buildCalendar();
+
+// budget
+const bWrap=$('#budget-rows');
+function money(n){return '€'+Math.round(n).toLocaleString('pl-PL');}
+function recalc(){
+  let total=0;
+  BUDGET.forEach((b,i)=>{total+=b.r*b.q;});
+  $('#b-total').textContent=money(total);
+  const rate=parseFloat($('#rate').value)||4.3;
+  $('#b-pln').textContent=Math.round(total*rate).toLocaleString('pl-PL')+' zł';
+  $('#hero-budget').textContent='~'+money(total);
+}
+BUDGET.forEach((b,i)=>{
+  const row=el('div','brow');
+  row.innerHTML=`<span class="lbl">${b.l}</span>
+    <input type="number" value="${b.r}" data-i="${i}" data-k="r" min="0">
+    <input type="number" value="${b.q}" data-i="${i}" data-k="q" min="0" style="text-align:center">
+    <span class="sum" id="sum-${i}"></span>`;
+  bWrap.appendChild(row);
+});
+function updSums(){BUDGET.forEach((b,i)=>{$('#sum-'+i).textContent=money(b.r*b.q);});}
+bWrap.addEventListener('input',e=>{
+  if(e.target.tagName!=='INPUT')return;
+  const i=+e.target.dataset.i,k=e.target.dataset.k;
+  BUDGET[i][k]=parseFloat(e.target.value)||0;
+  updSums();recalc();
+});
+$('#rate').addEventListener('input',recalc);
+updSums();recalc();
+
+// instagram
+const igWrap=$('#ig-cards');
+IG.forEach((ig,i)=>{
+  const card=el('div','ig-card');
+  const reelHtml=ig.reel.map(line=>`<li>${line}</li>`).join('');
+  card.innerHTML=`<button class="ig-copy" data-i="${i}" data-mode="cap">Kopiuj podpis</button>
+    <div class="ig-top"><span class="ig-place">${ig.p}</span><span class="ig-type">${ig.t}</span></div>
+    <div class="ig-cap">${ig.c}</div>
+    <div class="ig-tags">${ig.h}</div>
+    <button class="reel-toggle" data-i="${i}">▷ Scenariusz na rolkę / stories</button>
+    <div class="reel-box" id="reel-${i}">
+      <div class="vo-block">
+        <div class="vo-label">🎙 Do powiedzenia na głos (voiceover)</div>
+        <div class="vo-text" id="votext-${i}">${ig.vo}</div>
+        <button class="ig-copy-vo" data-i="${i}">Kopiuj narrację</button>
+      </div>
+      <div class="reel-shots-label">🎬 Ujęcia i montaż</div>
+      <ol class="reel-list">${reelHtml}</ol>
+      <button class="ig-copy-reel" data-i="${i}">Kopiuj scenariusz ujęć</button>
+    </div>`;
+  igWrap.appendChild(card);
+});
+igWrap.addEventListener('click',e=>{
+  // reel toggle
+  const tog=e.target.closest('.reel-toggle');
+  if(tog){
+    const box=$('#reel-'+tog.dataset.i);
+    const open=box.classList.toggle('open');
+    tog.innerHTML=(open?'▽':'▷')+' Scenariusz na rolkę / stories';
+    return;
+  }
+  const btn=e.target.closest('.ig-copy,.ig-copy-reel,.ig-copy-vo');if(!btn)return;
+  const ig=IG[+btn.dataset.i];
+  const isReel=btn.classList.contains('ig-copy-reel');
+  const isVo=btn.classList.contains('ig-copy-vo');
+  const text=isVo
+    ? ig.vo
+    : isReel
+    ? `SCENARIUSZ ROLKI — ${ig.p}\n\n`+ig.reel.map((l,n)=>(n+1)+'. '+l).join('\n')+'\n\n'+ig.h
+    : ig.c+'\n\n'+ig.h;
+  const orig=btn.textContent;
+  const ok=()=>{btn.textContent='Skopiowano ✓';btn.classList.add('done');
+    setTimeout(()=>{btn.textContent=orig;btn.classList.remove('done');},1600);};
+  const fallback=()=>{
+    const ta=document.createElement('textarea');ta.value=text;
+    ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);
+    ta.select();try{document.execCommand('copy');ok();}catch(e){btn.textContent='Zaznacz ręcznie';}
+    document.body.removeChild(ta);
+  };
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(text).then(ok).catch(fallback);
+  }else{fallback();}
+});
+
+// flights
+const fWrap=$('#flights');
+FLIGHTS.forEach(f=>{
+  const c=el('div','flight');
+  c.innerHTML=`<div class="fico">${f.ico}</div>
+    <div class="fmain"><div class="froute">${f.route}</div><div class="fmeta">${f.meta}</div><div class="fnote">${f.note}</div></div>
+    <div class="ftime"><b>${f.time}</b><span>${f.sub}</span></div>`;
+  fWrap.appendChild(c);
+});
+
+// checklist with localStorage
+const cWrap=$('#checks');
+let saved={};
+try{saved=JSON.parse(localStorage.getItem('arm-checks')||'{}');}catch(e){}
+CHECKS.forEach((ch,i)=>{
+  const done=!!saved[i];
+  const row=el('div','chk'+(done?' done':''));
+  row.innerHTML=`<div class="box">${done?'✓':''}</div><div class="task">${ch.t}</div><div class="when">${ch.w}</div>`;
+  row.onclick=()=>{
+    const now=!row.classList.contains('done');
+    row.classList.toggle('done',now);
+    row.querySelector('.box').textContent=now?'✓':'';
+    saved[i]=now;
+    try{localStorage.setItem('arm-checks',JSON.stringify(saved));}catch(e){}
+  };
+  cWrap.appendChild(row);
+});
+
+/* ---- NOCLEGI (editable, localStorage) ---- */
+const staysWrap=$('#stays');
+// confirmed booking card first
+const bookedCard=el('div','stay filled');
+bookedCard.style.borderLeftColor='var(--gold)';
+bookedCard.innerHTML=`
+  <div class="stay-head">
+    <span class="stay-loc">${BOOKED.loc}</span>
+    <span class="stay-nights" style="background:var(--gold);color:#fff">✓ ${BOOKED.nights}</span>
+  </div>
+  <div class="stay-fields">
+    <div><label>Zameldowanie</label><div class="booked-v">${BOOKED.checkin}</div></div>
+    <div><label>Wymeldowanie</label><div class="booked-v">${BOOKED.checkout}</div></div>
+    <div class="full"><label>Adres</label><div class="booked-v">${BOOKED.addr}</div></div>
+    <div><label>Kod rezerwacji</label><div class="booked-v">${BOOKED.code}</div></div>
+    <div><label>Koszt</label><div class="booked-v">${BOOKED.price}</div></div>
+    <div><label>Telefon do gospodyni</label><div class="booked-v"><a href="tel:${BOOKED.tel.replace(/ /g,'')}" style="color:var(--tuf-deep)">${BOOKED.tel}</a></div></div>
+    <div><label>Ogłoszenie</label><div class="booked-v"><a href="${BOOKED.url}" target="_blank" rel="noopener" style="color:var(--tuf-deep)">Otwórz ↗</a></div></div>
+    <div class="full"><label>Uwaga</label><div class="booked-v" style="font-style:italic;color:var(--muted)">${BOOKED.note}</div></div>
+  </div>`;
+staysWrap.appendChild(bookedCard);
+
+let stayData={};
+try{stayData=JSON.parse(localStorage.getItem('arm-stays')||'{}');}catch(e){}
+STAYS.forEach((s,i)=>{
+  const saved=stayData[i]||{};
+  const filled=saved.name&&saved.name.trim();
+  const card=el('div','stay'+(filled?' filled':''));
+  card.id='stay-'+i;
+  card.innerHTML=`
+    <div class="stay-head">
+      <span class="stay-loc">${s.loc}</span>
+      <span class="stay-nights">${s.nights}</span>
+    </div>
+    <div class="stay-fields">
+      <div class="full"><label>Nazwa noclegu</label><input data-i="${i}" data-k="name" placeholder="np. Guesthouse Anahit" value="${(saved.name||'').replace(/"/g,'&quot;')}"></div>
+      <div class="full"><label>Adres</label><input data-i="${i}" data-k="addr" placeholder="ulica, miasto" value="${(saved.addr||'').replace(/"/g,'&quot;')}"></div>
+      <div><label>Cena / notatka</label><input data-i="${i}" data-k="price" placeholder="np. 25 USD/noc" value="${(saved.price||'').replace(/"/g,'&quot;')}"></div>
+      <div><label>Link (Airbnb/Booking)</label><input data-i="${i}" data-k="url" placeholder="https://..." value="${(saved.url||'').replace(/"/g,'&quot;')}"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
+      <span class="saved-tick" id="tick-${i}">Zapisano ✓</span>
+      <a class="stay-link" id="link-${i}" href="${saved.url||'#'}" target="_blank" rel="noopener" style="${saved.url?'':'display:none'}">Otwórz link ↗</a>
+    </div>`;
+  staysWrap.appendChild(card);
+});
+let tickTimers={};
+staysWrap.addEventListener('input',e=>{
+  const inp=e.target.closest('input');if(!inp)return;
+  const i=+inp.dataset.i,k=inp.dataset.k;
+  stayData[i]=stayData[i]||{};
+  stayData[i][k]=inp.value;
+  try{localStorage.setItem('arm-stays',JSON.stringify(stayData));}catch(e){}
+  // toggle filled state + link
+  const card=$('#stay-'+i);
+  card.classList.toggle('filled',!!(stayData[i].name&&stayData[i].name.trim()));
+  if(k==='url'){
+    const link=$('#link-'+i);
+    if(inp.value){link.href=inp.value;link.style.display='';}else{link.style.display='none';}
+  }
+  const tick=$('#tick-'+i);tick.classList.add('show');
+  clearTimeout(tickTimers[i]);
+  tickTimers[i]=setTimeout(()=>tick.classList.remove('show'),1200);
+});
+
+/* ---- DO ZOBACZENIA (checklist zwiedzania) ---- */
+const seeWrap=$('#see-list');
+let seeDone={};
+try{seeDone=JSON.parse(localStorage.getItem('arm-seedone')||'{}');}catch(e){}
+let seeFilter='all';
+function seeKey(cat,n){return cat+'|'+n;}
+function buildSeeList(){
+  seeWrap.innerHTML='';
+  SEE.forEach(group=>{
+    const visible=group.items.filter(it=>{
+      const done=!!seeDone[seeKey(group.cat,it.n)];
+      if(seeFilter==='star')return it.star;
+      if(seeFilter==='todo')return !done;
+      return true;
+    });
+    if(!visible.length)return;
+    seeWrap.appendChild(el('div','see-cat',group.cat));
+    visible.forEach(it=>{
+      const key=seeKey(group.cat,it.n);
+      const done=!!seeDone[key];
+      const row=el('div','see-item'+(done?' done':''));
+      row.innerHTML=`<div class="sbox">${done?'✓':''}</div>
+        <div class="sname">${it.n}${it.star?'<span class="star">⭐</span>':''}</div>
+        <div class="sday">${it.day}</div>`;
+      row.onclick=()=>{
+        seeDone[key]=!seeDone[key];
+        try{localStorage.setItem('arm-seedone',JSON.stringify(seeDone));}catch(e){}
+        buildSeeList();
+      };
+      seeWrap.appendChild(row);
+    });
+  });
+  if(!seeWrap.children.length)seeWrap.innerHTML='<p style="color:var(--muted);font-style:italic">Nic tu nie ma dla tego filtra.</p>';
+}
+$('#see-filter').addEventListener('click',e=>{
+  const b=e.target.closest('.sf');if(!b)return;
+  document.querySelectorAll('.sf').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');seeFilter=b.dataset.f;buildSeeList();
+});
+buildSeeList();
+
+// --- Kultura ---
+function buildCulture(){
+  const w=$('#culture-list');w.innerHTML='';
+  CULTURE.forEach(g=>{
+    w.appendChild(el('div','cult-cat',g.cat));
+    g.items.forEach(it=>{
+      const c=el('div','cult-item');
+      c.innerHTML=`<div class="cult-head"><span class="cult-title">${it.t}${it.star?' <span class="cult-star">⭐</span>':''}</span><span class="cult-meta">${it.m}</span></div><div class="cult-desc">${it.d}</div>`;
+      w.appendChild(c);
+    });
+  });
+}
+buildCulture();
+
+// --- Język ---
+function buildLang(){
+  const w=$('#lang-content');
+  let html='<div class="lang-sec"><h3>Alfabet ormiański (39 liter)</h3><div class="alpha-grid">';
+  ALPHABET.forEach(a=>{html+=`<div class="alpha-cell"><div class="alpha-ch">${a.c}</div><div class="alpha-tr">${a.t}</div></div>`;});
+  html+='</div><p style="font-size:12.5px;color:var(--muted);font-style:italic;margin-top:10px">Transkrypcja orientacyjna. Alfabet stworzył Mesrop Masztoc ok. 405 r. — jeden z niewielu w pełni autorskich alfabetów świata.</p></div>';
+  PHRASES.forEach(p=>{
+    html+=`<div class="lang-sec"><h3>${p.sec}</h3>`;
+    p.list.forEach(ph=>{html+=`<div class="phrase"><span class="arm">${ph.arm}</span><span class="lat">${ph.lat}</span><span class="pl">${ph.pl}</span></div>`;});
+    html+='</div>';
+  });
+  w.innerHTML=html;
+}
+buildLang();
+
+// --- sub-nav switching inside Niezbędnik ---
+$('#nz-subnav').addEventListener('click',e=>{
+  const b=e.target.closest('.snb');if(!b)return;
+  document.querySelectorAll('.snb').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.nz-sub').forEach(s=>s.style.display='none');
+  $('#nz-'+b.dataset.s).style.display='';
+});
+
+/* ---- MAPA (Leaflet, lazy init on first open) ---- */
+let mapInited=false;
+function initMap(){
+  if(mapInited)return;
+  if(typeof L==='undefined'){
+    $('#map').innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;padding:30px;text-align:center;color:var(--muted);font-size:14px">Mapa wymaga połączenia z internetem (biblioteka map). Sprawdź sieć i odśwież stronę.</div>';
+    return;
+  }
+  mapInited=true;
+  const map=L.map('map',{scrollWheelZoom:false}).setView([40.25,44.9],7);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:18,attribution:'© OpenStreetMap'
+  }).addTo(map);
+  const pts=[];
+  STOPS.forEach((s,i)=>{
+    pts.push(s.coord);
+    const cls=s.type==='base'?'base':s.type==='flight'?'flight':'';
+    const icon=L.divIcon({
+      className:'',html:`<div class="map-marker ${cls}"><span>${i+1}</span></div>`,
+      iconSize:[26,26],iconAnchor:[13,26],popupAnchor:[0,-24]
+    });
+    L.marker(s.coord,{icon}).addTo(map)
+     .bindPopup(`<div class="map-pop"><div class="mp-date">${s.date}</div><b>${s.name}</b><br>${s.note}</div>`);
+  });
+  // route line following travel order (Gyumri->Debed->Dilijan->Sevan->Yerevan; south loop separate visual)
+  const routeOrder=[0,1,2,3,4,9,10];
+  const line=routeOrder.map(idx=>STOPS[idx].coord);
+  L.polyline(line,{color:'#9E4A28',weight:3,opacity:.6,dashArray:'6 8'}).addTo(map);
+  map.fitBounds(L.latLngBounds(pts).pad(0.15));
+  setTimeout(()=>map.invalidateSize(),200);
+  window._armMap=map;
+}
+// hook into tab switching
+const _origTabs=document.querySelectorAll('.tab');
+_origTabs.forEach(b=>b.addEventListener('click',()=>{
+  if(b.dataset.p==='mapa'){setTimeout(initMap,80);}
+}));
+
+/* ---- EKSPORT / IMPORT danych ---- */
+const DATA_KEYS=['arm-dayedits','arm-dayflags','arm-dayfood','arm-seedone','arm-stays','arm-checks'];
+function dataMsg(txt,ok){const m=$('#data-msg');m.textContent=txt;m.style.color=ok?'var(--sage-deep)':'#C0392B';setTimeout(()=>{m.textContent='';},4000);}
+$('#export-btn').addEventListener('click',()=>{
+  const dump={_app:'armenia-2026',_exported:new Date().toISOString()};
+  DATA_KEYS.forEach(k=>{try{const v=localStorage.getItem(k);if(v!=null)dump[k]=JSON.parse(v);}catch(e){}});
+  const blob=new Blob([JSON.stringify(dump,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='armenia-2026-backup.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  dataMsg('Backup pobrany ✓ Zapisz plik i przenieś na inne urządzenie.',true);
+});
+$('#import-btn').addEventListener('click',()=>$('#import-file').click());
+$('#import-file').addEventListener('change',e=>{
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const dump=JSON.parse(ev.target.result);
+      if(dump._app!=='armenia-2026'){dataMsg('To nie jest plik backupu tej aplikacji.',false);return;}
+      let n=0;
+      DATA_KEYS.forEach(k=>{if(dump[k]!=null){localStorage.setItem(k,JSON.stringify(dump[k]));n++;}});
+      dataMsg('Zaimportowano ✓ Odświeżam…',true);
+      setTimeout(()=>location.reload(),900);
+    }catch(err){dataMsg('Błąd: plik uszkodzony lub w złym formacie.',false);}
+  };
+  reader.readAsText(file);
+  e.target.value='';
+});
+
+</script>
+</body>
+</html>
