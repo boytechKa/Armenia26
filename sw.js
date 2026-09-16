@@ -1,14 +1,18 @@
 /* Powrót 2026 — service worker
-   Trzyma apkę i mapę offline. Podbij VERSION przy każdej zmianie index.html. */
-const VERSION = 'v2';
+   Obsługuje DWIE apki w jednym katalogu: index.html (Armenia) i powroty.html (Powrót).
+   Podbij VERSION przy każdym wgraniu — inaczej przeglądarka nie zauważy zmiany. */
+const VERSION = 'v3';
 const SHELL   = 'powrot-shell-' + VERSION;
 const TILES   = 'powrot-tiles';   // BEZ wersji — aktualizacja apki nie kasuje zapisanych map
 const MAX_TILES = 1200;
 
-/* Leaflet siedzi w index.html — apka to dwa pliki i zero zależności zewnętrznych */
+/* Leaflet siedzi w obu plikach HTML — zero zależności zewnętrznych */
 const PRECACHE = [
   './',
-  './index.html'
+  './index.html',
+  './powroty.html',
+  './icon-armenia.png',
+  './icon-powroty.png'
 ];
 /* fonty: miło mieć, ale apka działa bez nich (fallback systemowy) */
 const NICE_TO_HAVE = [
@@ -92,14 +96,17 @@ self.addEventListener('fetch', e => {
   // 2. nawigacja (wejście na stronę) — sieć, a gdy jej nie ma: zapisana kopia
   if (req.mode === 'navigate') {
     e.respondWith((async () => {
+      const c = await caches.open(SHELL);
       try {
         const res = await fetch(req);
-        const c = await caches.open(SHELL);
-        c.put('./index.html', res.clone());
+        // zapisz POD WŁASNYM adresem, żeby każda apka miała swoją kopię
+        c.put(req, res.clone());
         return res;
       } catch (err) {
-        const c = await caches.open(SHELL);
-        return (await c.match('./index.html')) || (await c.match('./')) ||
+        // offline: najpierw dokładnie ta strona, którą otwierasz
+        return (await c.match(req, { ignoreSearch: true })) ||
+               (await c.match(url.pathname)) ||
+               (await c.match('./index.html')) || (await c.match('./')) ||
                new Response('<h1>Brak sieci i brak zapisanej kopii</h1>', { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
       }
     })());
