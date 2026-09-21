@@ -1,7 +1,7 @@
 /* Powrót 2026 — service worker
-   Obsługuje DWIE apki w jednym katalogu: index.html (Armenia) i powroty.html (Powrót).
+   Apka „Wyprawy”: index.html (wszystkie wyprawy) + powroty.html (skrót do wyprawy Powrót).
    Podbij VERSION przy każdym wgraniu — inaczej przeglądarka nie zauważy zmiany. */
-const VERSION = 'v3';
+const VERSION = 'v5';
 const SHELL   = 'powrot-shell-' + VERSION;
 const TILES   = 'powrot-tiles';   // BEZ wersji — aktualizacja apki nie kasuje zapisanych map
 const MAX_TILES = 1200;
@@ -92,6 +92,10 @@ self.addEventListener('fetch', e => {
     })());
     return;
   }
+
+  // 1b. pogoda, kursy walut, wyszukiwanie miejsc — zawsze z sieci;
+  //     apka sama trzyma ostatni wynik, żeby działał offline
+  if (/(^|\.)open-meteo\.com$|(^|\.)er-api\.com$/.test(url.hostname)) return;
 
   // 2. nawigacja (wejście na stronę) — sieć, a gdy jej nie ma: zapisana kopia
   if (req.mode === 'navigate') {
