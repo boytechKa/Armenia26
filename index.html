@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Wyprawy · plan i dziennik podróży</title>
+<title>Rihla · plan i dziennik podróży</title>
 <meta name="description" content="Plan podróży, dziennik, wydatki i przewodnik — działa offline.">
 <meta name="theme-color" content="#221D1C">
 <meta name="color-scheme" content="light">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Wyprawy">
+<meta name="apple-mobile-web-app-title" content="Rihla">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon" href="icon-armenia.png">
 <link rel="icon" type="image/png" href="icon-armenia.png">
@@ -1445,6 +1445,8 @@ main{padding-bottom:120px}
 .pcard.visited .tick,.cult.visited .vis{opacity:1}
 .pcard.visited{opacity:.6}
 .pcard.visited .pc-n{text-decoration:line-through}
+.ultreia{display:flex;align-items:baseline;gap:8px;font-family:'Fraunces',serif;font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.ultreia span{font-family:'Inter',sans-serif;font-size:10.5px;letter-spacing:.06em;text-transform:none;color:rgba(251,246,236,.45)}
 </style>
 </head>
 <body>
@@ -1547,7 +1549,7 @@ main{padding-bottom:120px}
 
 <footer>
   <span class="sig" id="sig">Dobrej drogi</span>
-  <span id="foot-name">Wyprawy</span>
+  <span id="foot-name">Rihla</span>
   <div style="margin-top:12px"><span class="netdot" id="netdot"><i></i>online</span></div>
   <div class="data-bar">
     <button id="export-btn" class="data-btn">⬇ Backup wszystkich wypraw</button>
@@ -2234,7 +2236,8 @@ function destCard(c){
   if(s){
     const lc=stageLocal(s),m=MODES[s.mode]||MODES.bus;
     const others=tr.filter(x=>x!==s&&x.status!=='done');
-    return '<div class="card dest"><h4>'+(s.status==='done'?'Dziś dojechałeś do':'Dziś jedziesz do')+'</h4>'+
+    return '<div class="card dest">'+(s.status==='done'?'':'<div class="ultreia">Ultreia<span>naprzód, dalej</span></div>')+
+      '<h4>'+(s.status==='done'?'Dziś dojechałeś do':'Dziś jedziesz do')+'</h4>'+
       '<div class="d-from">z '+esc(s.from)+(s.via?' · przez '+esc(s.via):'')+'</div>'+
       '<div class="d-to">'+esc(s.to)+'</div>'+
       (lc.loc&&norm(lc.loc)!==norm(s.to)?'<div class="d-loc">'+esc(lc.loc)+'</div>':'')+
@@ -2852,7 +2855,7 @@ function doExport(){
   const dump={_app:'wyprawy',_v:1,_exported:new Date().toISOString()};
   ALL_KEYS.forEach(k=>{const v=lsGet(k);if(v!=null)try{dump[k]=JSON.parse(v);}catch(e){}});
   const blob=new Blob([JSON.stringify(dump,null,1)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='wyprawy-backup-'+isoToday()+'.json';
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='rihla-'+(T()?T().id:'backup')+'-'+isoToday()+'.json';
   document.body.appendChild(a);a.click();a.remove();
   save(K.bak,Date.now());updateBackupAge();dataMsg('Backup pobrany ✓',true);
 }
